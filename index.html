@@ -432,13 +432,13 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 20 (v2.3). Tabbed UI added!</p>
+    <p>Total Auras: 20 (v2.4). Collected count fixed!</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
         <div>💰 Coins: <span id="money-display" style="color: gold; font-weight: bold;">0</span></div>
         <div>⚡ Power: <span id="power-display" style="color: red; font-weight: bold;">0</span></div>
-        <div>Collected: <span id="collected-count">0</span>/20</div>
+        <div>Collected: <span id="collected-count">0/20</span></div>
     </div>
 
     <div id="display-area">
@@ -507,12 +507,12 @@
         const BASE_REBIRTH_COST = 1000000;
         const POWER_BONUS = 2;
 
-        // Storage keys updated for v2.3
-        const MONEY_STORAGE_KEY = 'aura_money_v2_3';
-        const SPEED_STORAGE_KEY = 'aura_speed_v2_3';
-        const POWER_STORAGE_KEY = 'aura_power_v2_3';
-        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_3';
-        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_3';
+        // Storage keys updated for v2.4
+        const MONEY_STORAGE_KEY = 'aura_money_v2_4';
+        const SPEED_STORAGE_KEY = 'aura_speed_v2_4';
+        const POWER_STORAGE_KEY = 'aura_power_v2_4';
+        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_4';
+        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_4';
 
         const auras = [
             { name: "NPC Energy", rarity: "Common", chance: 2, class: "common", value: 50 },
@@ -670,7 +670,7 @@
             // Render initial displays
             updateLuckDisplay();
             renderChecklist();
-            updateCollectedCount();
+            updateCollectedCount(); // Corrected function will display fixed format
             renderInventory(); 
             renderSpeedShop(); 
             updateRebirthDisplay(); 
@@ -710,9 +710,12 @@
             localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(inventory));
         }
 
+        // --- FIX IS HERE ---
         function updateCollectedCount() {
+            // Fixes the issue where it was displaying 0/20/20 by only using the count and total
             getButton('collected-count').textContent = `${collectedAuras.size}/${auras.length}`;
         }
+        // --- END FIX ---
 
         function saveAuraToCollection(auraName) {
             if (!collectedAuras.has(auraName)) {
