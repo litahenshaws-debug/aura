@@ -209,11 +209,24 @@
             font-size: 1.2rem;
         }
 
-        #shard-mult-btn {
+        /* Shard Button Styles */
+        .shard-btn {
             background: linear-gradient(45deg, #00ccff, #0066ff);
             box-shadow: 0 8px 0 #005c99;
             color: white;
             font-size: 1.2rem;
+            padding: 15px 25px;
+            margin: 10px;
+            display: inline-block;
+            line-height: 1.2;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .shard-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0;
         }
 
 
@@ -470,7 +483,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 23 (v2.6). Loot Box and Aura Shards added!</p>
+    <p>Total Auras: 23 (v2.7). More Shard Upgrades added!</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -513,17 +526,41 @@
         
         <div id="loot-shop" class="tab-content">
             <h2>🎁 Loot Shop</h2>
-            <p style="font-style: italic;">Spend your currencies on high-value items.</p>
-            <div id="loot-upgrades">
-                <button id="mystery-btn" class="boost-btn" onclick="openMysteryBox()">
-                    MYSTERY BOX<br>(Cost: 💰50,000)
+            <p style="font-style: italic;">Spend your high-value currencies on long-term benefits.</p>
+
+            <div id="shard-upgrades">
+                <h3>💎 Shard Upgrades (Permanent, Multi-Use)</h3>
+
+                <button id="shard-mult-btn" class="shard-btn" onclick="buyShardUpgrade('shard-mult')">
+                    Permanent Shard Multiplier<br>(Cost: 💎10 Shards)
                 </button>
+                <p id="shard-mult-status" style="margin-top: 5px; color: lime;">Current Multiplier: 1x</p>
                 <br>
-                <button id="shard-mult-btn" class="boost-btn" onclick="buyShardMultiplier()">
-                    Permanent Shard Bonus<br>(Cost: 💎10 Shards)
+
+                <button id="rebirth-start-1-btn" class="shard-btn" onclick="buyShardUpgrade('rebirth-start-1')">
+                    Pocket Change T1<br>(Cost: 💎25 Shards)
                 </button>
-                <p id="shard-mult-status" style="margin-top: 10px; color: lime;">Current Shard Multiplier: 1x</p>
+                <p id="rebirth-start-1-status" style="margin-top: 5px; color: yellow;">Status: Unpurchased (+💰2,500 on Rebirth)</p>
+                
+                <button id="rebirth-start-2-btn" class="shard-btn" onclick="buyShardUpgrade('rebirth-start-2')">
+                    Pocket Change T2<br>(Cost: 💎75 Shards)
+                </button>
+                <p id="rebirth-start-2-status" style="margin-top: 5px; color: yellow;">Status: Unpurchased (+💰10,000 on Rebirth)</p>
+                <br>
+                
+                <button id="rare-chance-btn" class="shard-btn" onclick="buyShardUpgrade('rare-chance')">
+                    Sharp Senses<br>(Cost: 💎50 Shards)
+                </button>
+                <p id="rare-chance-status" style="margin-top: 5px; color: yellow;">Bonus: 0.0x (Rare/Uncommon chance)</p>
+
             </div>
+
+            <hr style="border-color: #555; margin: 20px 0;">
+
+            <h3>💰 Coin Sink (Guaranteed Drop)</h3>
+            <button id="mystery-btn" class="boost-btn" onclick="openMysteryBox()">
+                MYSTERY BOX<br>(Cost: 💰50,000)
+            </button>
         </div>
 
 
@@ -561,6 +598,11 @@
         let money = 0;
         let shards = 0;
         let shardMultiplier = 1;
+        let rebirthStartMoney = 500; // Base money after rebirth
+        let rebirthStartT1Purchased = false;
+        let rebirthStartT2Purchased = false;
+        let rareBonusLuck = 0; // The new multiplier for rare/uncommon chances
+        
         let autoRollSpeed = 1000;
         let speedLevel = 0;
         let power = 0;
@@ -568,14 +610,18 @@
         const BASE_REBIRTH_COST = 1000000;
         const POWER_BONUS = 2;
 
-        // Storage keys updated for v2.6
-        const MONEY_STORAGE_KEY = 'aura_money_v2_6';
-        const SHARDS_STORAGE_KEY = 'aura_shards_v2_6';
-        const SHARD_MULT_STORAGE_KEY = 'aura_shard_mult_v2_6';
-        const SPEED_STORAGE_KEY = 'aura_speed_v2_6';
-        const POWER_STORAGE_KEY = 'aura_power_v2_6';
-        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_6';
-        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_6';
+        // Storage keys updated for v2.7
+        const VERSION_KEY = 'v2_7';
+        const MONEY_STORAGE_KEY = `aura_money_${VERSION_KEY}`;
+        const SHARDS_STORAGE_KEY = `aura_shards_${VERSION_KEY}`;
+        const SHARD_MULT_STORAGE_KEY = `aura_shard_mult_${VERSION_KEY}`;
+        const REBIRTH_START_T1_KEY = `aura_start_t1_purchased_${VERSION_KEY}`;
+        const REBIRTH_START_T2_KEY = `aura_start_t2_purchased_${VERSION_KEY}`;
+        const RARE_BONUS_KEY = `aura_rare_bonus_luck_${VERSION_KEY}`;
+        const SPEED_STORAGE_KEY = `aura_speed_${VERSION_KEY}`;
+        const POWER_STORAGE_KEY = `aura_power_${VERSION_KEY}`;
+        const COLLECTION_STORAGE_KEY = `aura_collection_${VERSION_KEY}`;
+        const INVENTORY_STORAGE_KEY = `aura_inventory_${VERSION_KEY}`;
 
         // --- CORE AURA LIST ---
         const auras = [
@@ -660,23 +706,37 @@
         function updateMoneyDisplay() {
             getButton('money-display').textContent = money.toLocaleString();
             getButton('shard-display').textContent = shards.toLocaleString();
-            getButton('shard-mult-status').textContent = `Current Shard Multiplier: ${shardMultiplier}x`;
             updateLuckDisplay(); 
             renderSpeedShop(); 
             updateRebirthDisplay(); 
             renderLootShop(); // Ensure loot shop buttons reflect current money/shards
         }
 
-        function loadMoney() {
+        function loadStats() {
             money = parseInt(localStorage.getItem(MONEY_STORAGE_KEY) || 500);
             shards = parseInt(localStorage.getItem(SHARDS_STORAGE_KEY) || 0);
             shardMultiplier = parseInt(localStorage.getItem(SHARD_MULT_STORAGE_KEY) || 1);
+            
+            // NEW SHARD UPGRADES LOADING
+            rebirthStartT1Purchased = localStorage.getItem(REBIRTH_START_T1_KEY) === 'true';
+            rebirthStartT2Purchased = localStorage.getItem(REBIRTH_START_T2_KEY) === 'true';
+            rareBonusLuck = parseFloat(localStorage.getItem(RARE_BONUS_KEY) || 0);
+
+            // Calculate starting money
+            rebirthStartMoney = 500;
+            if (rebirthStartT1Purchased) rebirthStartMoney = 2500;
+            if (rebirthStartT2Purchased) rebirthStartMoney = 10000;
         }
         
-        function saveMoney() {
+        function saveStats() {
             localStorage.setItem(MONEY_STORAGE_KEY, money.toString());
             localStorage.setItem(SHARDS_STORAGE_KEY, shards.toString());
             localStorage.setItem(SHARD_MULT_STORAGE_KEY, shardMultiplier.toString());
+            
+            // NEW SHARD UPGRADES SAVING
+            localStorage.setItem(REBIRTH_START_T1_KEY, rebirthStartT1Purchased.toString());
+            localStorage.setItem(REBIRTH_START_T2_KEY, rebirthStartT2Purchased.toString());
+            localStorage.setItem(RARE_BONUS_KEY, rareBonusLuck.toString());
         }
         
         function loadPower() {
@@ -714,7 +774,7 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            loadMoney();
+            loadStats();
             loadSpeed(); 
             loadPower(); 
             loadCollection();
@@ -738,10 +798,9 @@
 
         // --- LOOT SHOP LOGIC ---
         function renderLootShop() {
+            // Coin Sink (Mystery Box)
             const mysteryBtn = getButton('mystery-btn');
-            const shardBtn = getButton('shard-mult-btn');
             const cost = 50000;
-            const shardCost = 10 * shardMultiplier;
 
             if (money < cost) {
                 mysteryBtn.disabled = true;
@@ -752,27 +811,88 @@
                 mysteryBtn.classList.remove('disabled-boost');
                 mysteryBtn.innerHTML = `MYSTERY BOX<br>(Cost: 💰${cost.toLocaleString()})`;
             }
+
+            // Shard Upgrades (All Permanent)
             
-            shardBtn.innerHTML = `Permanent Shard Bonus<br>(Cost: 💎${shardCost} Shards)`;
-            if (shards < shardCost) {
-                 shardBtn.disabled = true;
-                 shardBtn.classList.add('disabled-boost');
+            // 1. Shard Multiplier
+            const shardMultBtn = getButton('shard-mult-btn');
+            const shardCost = 10 * shardMultiplier;
+            getButton('shard-mult-status').textContent = `Current Multiplier: ${shardMultiplier}x`;
+            shardMultBtn.innerHTML = `Permanent Shard Multiplier<br>(Cost: 💎${shardCost} Shards)`;
+            shardMultBtn.disabled = shards < shardCost;
+            shardMultBtn.classList.toggle('disabled-boost', shards < shardCost);
+
+
+            // 2. Pocket Change T1
+            const t1Btn = getButton('rebirth-start-1-btn');
+            const t1Cost = 25;
+            t1Btn.innerHTML = `Pocket Change T1<br>(Cost: 💎${t1Cost} Shards)`;
+            getButton('rebirth-start-1-status').textContent = `Status: ${rebirthStartT1Purchased ? 'PURCHASED' : 'Unpurchased'} (+💰2,500 on Rebirth)`;
+            t1Btn.disabled = rebirthStartT1Purchased || shards < t1Cost || rebirthStartT2Purchased;
+            t1Btn.classList.toggle('purchased-upgrade', rebirthStartT1Purchased);
+            t1Btn.classList.toggle('disabled-boost', t1Btn.disabled && !rebirthStartT1Purchased);
+            
+            // 3. Pocket Change T2
+            const t2Btn = getButton('rebirth-start-2-btn');
+            const t2Cost = 75;
+            t2Btn.innerHTML = `Pocket Change T2<br>(Cost: 💎${t2Cost} Shards)`;
+            getButton('rebirth-start-2-status').textContent = `Status: ${rebirthStartT2Purchased ? 'PURCHASED' : 'Unpurchased'} (+💰10,000 on Rebirth)`;
+            t2Btn.disabled = !rebirthStartT1Purchased || rebirthStartT2Purchased || shards < t2Cost;
+            t2Btn.classList.toggle('purchased-upgrade', rebirthStartT2Purchased);
+            t2Btn.classList.toggle('disabled-boost', t2Btn.disabled && !rebirthStartT2Purchased);
+            
+            // 4. Sharp Senses
+            const rareBtn = getButton('rare-chance-btn');
+            const rareCost = 50;
+            rareBtn.innerHTML = `Sharp Senses<br>(Cost: 💎${rareCost} Shards)`;
+            getButton('rare-chance-status').textContent = `Bonus: +${(rareBonusLuck * 10).toFixed(1)}x (Rare/Uncommon chance)`;
+            rareBtn.disabled = rareBonusLuck >= 0.6 || shards < rareCost; // Limit to 3 purchases (0.6x total)
+            
+            if (rareBonusLuck >= 0.6) {
+                 rareBtn.innerHTML = `Sharp Senses (MAXED)<br>(Bonus: 0.6x)`;
+                 rareBtn.classList.add('purchased-upgrade');
             } else {
-                 shardBtn.disabled = false;
-                 shardBtn.classList.remove('disabled-boost');
+                 rareBtn.classList.remove('purchased-upgrade');
             }
+            rareBtn.classList.toggle('disabled-boost', rareBtn.disabled && rareBonusLuck < 0.6);
         }
         
-        function buyShardMultiplier() {
-            const cost = 10 * shardMultiplier;
+        function buyShardUpgrade(type) {
+            let cost, effectFn;
+            
+            switch(type) {
+                case 'shard-mult':
+                    cost = 10 * shardMultiplier;
+                    effectFn = () => { shardMultiplier += 1; };
+                    break;
+                case 'rebirth-start-1':
+                    cost = 25;
+                    if (rebirthStartT1Purchased) return;
+                    effectFn = () => { rebirthStartT1Purchased = true; rebirthStartMoney = 2500; };
+                    break;
+                case 'rebirth-start-2':
+                    cost = 75;
+                    if (rebirthStartT2Purchased || !rebirthStartT1Purchased) return;
+                    effectFn = () => { rebirthStartT2Purchased = true; rebirthStartMoney = 10000; };
+                    break;
+                case 'rare-chance':
+                    cost = 50;
+                    if (rareBonusLuck >= 0.6) return; // Max 3 purchases
+                    effectFn = () => { rareBonusLuck = Math.min(0.6, rareBonusLuck + 0.2); };
+                    break;
+                default:
+                    return;
+            }
+
             if (shards >= cost) {
                 shards -= cost;
-                shardMultiplier += 1;
-                saveMoney();
+                effectFn();
+                saveStats();
                 updateMoneyDisplay();
-                alert(`SUCCESS! Your Shard Multiplier is now ${shardMultiplier}x.`);
+                alert(`SUCCESS! Upgrade purchased: ${type.replace(/-/g, ' ')}.`);
             }
         }
+
 
         async function openMysteryBox() {
             const COST = 50000;
@@ -781,7 +901,7 @@
             if (!confirm(`Are you sure you want to spend 💰${COST.toLocaleString()} for a guaranteed high-rarity Aura?`)) return;
 
             money -= COST;
-            saveMoney();
+            saveStats();
             updateMoneyDisplay();
 
             // 1. Filter for Rare or better Auras
@@ -797,7 +917,7 @@
             if (Math.random() < 0.10) { // 10% chance for a huge bonus
                 coinBonus = 200000;
                 money += coinBonus;
-                saveMoney();
+                saveStats();
                 bonusMessage = `\n\n🎉 BONUS! You won 💰${coinBonus.toLocaleString()}!`;
             }
 
@@ -820,18 +940,20 @@
             inventory.forEach(item => {
                 const details = getAuraDetails(item.name);
                 if (details) {
-                    totalValue += Math.floor(details.value * powerMultiplier);
+                    // Use floor to prevent fractional coin value
+                    totalValue += Math.floor(details.value * powerMultiplier); 
                     totalShards += details.shardValue;
                 }
             });
             
+            // Apply shard multiplier
             const finalShards = totalShards * shardMultiplier;
 
             if (confirm(`Are you sure you want to sell all ${inventory.length} items for a total of 💰${totalValue.toLocaleString()} and 💎${finalShards} Shards?`)) {
                 money += totalValue;
                 shards += finalShards;
                 inventory = []; 
-                saveMoney();
+                saveStats();
                 saveInventory();
                 updateMoneyDisplay();
                 renderInventory(); 
@@ -845,12 +967,14 @@
             const now = new Date();
             const localDay = now.getDay(); 
 
+            // Check if the current time is 3:40 PM PST on Dec 10, 2025. This is just for context/consistency.
+            // Simplified logic: LTA rotates daily. 0=Sun, 1=Mon, ..., 6=Sat
             if (localDay === 1 || localDay === 2) { 
-                activeLimitedAura = limitedAuras[0];
+                activeLimitedAura = limitedAuras[0]; // Seasonal Spook (Mythical)
             } else if (localDay === 3 || localDay === 4) { 
-                activeLimitedAura = limitedAuras[1];
+                activeLimitedAura = limitedAuras[1]; // Holiday Hype (Divine)
             } else { 
-                activeLimitedAura = limitedAuras[2];
+                activeLimitedAura = limitedAuras[2]; // Summer Chill (Cosmic)
             }
             
             const midnight = new Date(now);
@@ -1008,14 +1132,15 @@
                 calculatePowerMultiplier();
                 savePower();
                 
-                money = 500;
+                // Reset resources, but use the permanent start money upgrade
+                money = rebirthStartMoney; 
                 shards = 0;
                 shardMultiplier = 1;
                 autoRollSpeed = 1000;
                 speedLevel = 0;
                 inventory = [];
                 
-                saveMoney();
+                saveStats(); // Saves money, shards, and shard upgrades
                 saveSpeed();
                 saveInventory();
                 
@@ -1028,7 +1153,7 @@
 
 
         function resetGame() {
-            if (confirm("Are you sure you want to reset ALL game progress? This cannot be undone.")) {
+            if (confirm("Are you sure you want to reset ALL game progress? This cannot be undone. This also clears old version data.")) {
                 localStorage.clear();
                 window.location.reload();
             }
@@ -1068,7 +1193,7 @@
                 speedLevel = upgrade.id;
                 autoRollSpeed = upgrade.speed;
 
-                saveMoney();
+                saveStats();
                 saveSpeed(); 
                 updateMoneyDisplay(); 
                 
@@ -1173,7 +1298,7 @@
             if (money < boost.cost) return;
 
             money -= boost.cost;
-            saveMoney();
+            saveStats();
             updateMoneyDisplay(); 
 
             luckMultiplier = multiplier;
@@ -1200,7 +1325,7 @@
             const rollMoney = 10; 
 
             money += Math.floor(rollMoney * powerMultiplier);
-            saveMoney();
+            saveStats();
             updateMoneyDisplay();
 
             const auraList = getAurasForRolling();
@@ -1242,10 +1367,16 @@
             let result = null;
             const currentAuraList = getAurasForRolling();
 
+            // Auras are already sorted by chance in the definition, but sort here for safety
             const sortedAuras = [...currentAuraList].sort((a, b) => b.chance - a.chance);
 
             for (let aura of sortedAuras) {
                 let threshold = (1000 / aura.chance) * luckMultiplier;
+                
+                // Apply the permanent bonus to Uncommon and Rare Auras
+                if (aura.rarity === 'Uncommon' || aura.rarity === 'Rare') {
+                    threshold += threshold * rareBonusLuck; // 0.2x, 0.4x, or 0.6x bonus
+                }
 
                 if (Math.random() * 1000 <= threshold) {
                     result = aura;
@@ -1257,7 +1388,7 @@
 
             const coinGain = Math.floor(result.value * powerMultiplier);
             money += coinGain;
-            saveMoney();
+            saveStats();
             updateMoneyDisplay();
 
             displayResult(result, coinGain);
