@@ -160,14 +160,17 @@
 </head>
 <body>
 
-    <audio id="throttle-preventer" loop muted>
-        <source src="https://example.com/silent.mp3" type="audio/mp3"> 
+    <audio id="bg-music" loop>
+        <source src="YOUR_BGM_FILE_URL_HERE" type="audio/mp3"> 
         Your browser does not support the audio element.
+    </audio>
+
+    <audio id="throttle-preventer" loop muted>
+        <source src="YOUR_BGM_FILE_URL_HERE" type="audio/mp3">
     </audio>
 
     <h1>🧠 STEAL THE BRAIN ROT 🧠</h1>
     <p>Total Auras: 12. Good luck stealing a Mythical!</p>
-    <p>version 1.4</p>
 
     <div id="display-area">
         <div id="aura-name">???</div>
@@ -203,8 +206,10 @@
 
         let isRolling = false;
         let autoRollInterval = null;
-        const audioElement = document.getElementById('throttle-preventer');
-
+        
+        // Get the audio elements
+        const musicElement = document.getElementById('bg-music');
+        const throttleElement = document.getElementById('throttle-preventer');
 
         async function rollAura(isAuto) {
             if (isRolling) return;
@@ -289,32 +294,32 @@
             list.insertBefore(div, list.firstChild);
         }
         
-        // --- UPDATED AUTO ROLL LOGIC ---
         function toggleAutoRoll() {
             const autoBtn = document.getElementById('auto-roll-btn');
             const manualBtn = document.getElementById('roll-btn');
 
             if (autoRollInterval) {
-                // STOP AUTO ROLL
+                // STOP AUTO ROLL AND MUSIC
                 clearInterval(autoRollInterval);
                 autoRollInterval = null;
                 autoBtn.innerText = "AUTO ROLL";
                 manualBtn.disabled = false;
                 
-                // 1. Stop the silent audio track
-                audioElement.pause();
-                audioElement.currentTime = 0;
+                musicElement.pause();
+                throttleElement.pause();
+                musicElement.currentTime = 0;
+                throttleElement.currentTime = 0;
 
             } else {
-                // START AUTO ROLL
+                // START AUTO ROLL AND MUSIC
                 manualBtn.disabled = true;
                 autoBtn.innerText = "STOP AUTO ROLL";
                 
-                // 1. Start the silent audio track (requires user interaction first)
-                // This starts the audio playing, which tells the browser not to throttle the tab.
-                audioElement.play().catch(e => console.error("Autoplay prevented:", e));
+                // Start music and throttle prevention
+                musicElement.play().catch(e => console.error("Music Autoplay prevented:", e));
+                throttleElement.play().catch(e => console.error("Throttle prevention failed:", e));
 
-                // 2. Start the interval
+                // Start the interval
                 autoRollInterval = setInterval(() => {
                     rollAura(true); 
                 }, 1000);
@@ -324,4 +329,3 @@
 
 </body>
 </html>
-
