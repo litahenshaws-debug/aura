@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,12 +18,41 @@
         }
 
         h1 {
-            /* Changed title text */
             font-family: 'Comic Sans MS', cursive;
             text-shadow: 4px 4px 0px #ff00ff;
             font-size: 3rem;
             margin-bottom: 10px;
         }
+
+        /* Status Area */
+        #status-area {
+            margin: 10px auto 20px;
+            max-width: 600px;
+            padding: 10px;
+            border: 2px solid #555;
+            border-radius: 8px;
+            background: #282828;
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1rem;
+        }
+
+        .luck-boost {
+            color: #ffcc00;
+            /* Gold color for luck */
+            font-weight: bold;
+        }
+
+        .x10-boost {
+            color: #00ffff;
+        }
+
+        /* Cyan for 10x */
+        .x100-boost {
+            color: #ff00ff;
+        }
+
+        /* Magenta for 100x */
 
         /* The Main Display Area */
         #display-area {
@@ -37,7 +67,7 @@
             margin: 20px auto;
             max-width: 600px;
             transition: all 0.2s;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         #aura-name {
@@ -52,7 +82,7 @@
             font-style: italic;
         }
 
-        /* Styling for both buttons */
+        /* Styling for all buttons */
         .btn {
             border: none;
             padding: 20px 50px;
@@ -63,6 +93,7 @@
             cursor: pointer;
             transition: transform 0.1s, box-shadow 0.1s;
             font-family: 'Impact', sans-serif;
+            margin: 5px;
         }
 
         /* Manual Roll Button Style */
@@ -80,22 +111,201 @@
         #auto-roll-btn {
             background: linear-gradient(45deg, #00ffff, #0088ff);
             box-shadow: 0 8px 0 #0055aa;
-            margin-left: 10px;
             color: black;
         }
-        
+
         #auto-roll-btn:active {
             transform: translateY(8px);
             box-shadow: 0 0 0 #0055aa;
         }
-        
-        #roll-btn:disabled, #auto-roll-btn:disabled {
+
+        /* Luck Button Base Style */
+        .boost-btn {
+            box-shadow: 0 8px 0;
+            font-size: 1.2rem;
+            padding: 15px 25px;
+            color: black;
+            margin-top: 10px;
+            display: inline-block;
+            line-height: 1.2;
+        }
+
+        .boost-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0;
+        }
+
+        /* 5x Luck Button Style */
+        #boost-5x {
+            background: linear-gradient(45deg, #ffcc00, #ffa300);
+            box-shadow: 0 8px 0 #cc8800;
+        }
+
+        /* 10x Luck Button Style */
+        #boost-10x {
+            background: linear-gradient(45deg, #00ffff, #00ff88);
+            box-shadow: 0 8px 0 #008855;
+        }
+
+        /* 100x Luck Button Style */
+        #boost-100x {
+            background: linear-gradient(45deg, #ff00ff, #aa00ff);
+            box-shadow: 0 8px 0 #880088;
+        }
+
+        .disabled-boost {
             background: gray !important;
             box-shadow: 0 8px 0 #333 !important;
             cursor: not-allowed !important;
         }
 
-        /* Inventory Section */
+        /* New active state for boost button */
+        .active-boost {
+            background: #ff4500 !important;
+            box-shadow: 0 8px 0 #992a00 !important;
+            color: white !important;
+        }
+
+
+        #roll-btn:disabled,
+        #auto-roll-btn:disabled {
+            background: gray !important;
+            box-shadow: 0 8px 0 #333 !important;
+            cursor: not-allowed !important;
+        }
+
+        /* --- New Shop Section Styling --- */
+        #shop-container {
+            margin-top: 30px;
+            border: 2px solid #555;
+            border-radius: 10px;
+            padding: 20px 10px;
+            background: #282828;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #shop-container h2 {
+            margin-top: 0;
+            color: #ffcc00;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(45deg, #0088ff, #0044aa);
+            box-shadow: 0 6px 0 #002255;
+            color: white;
+            font-size: 1.1rem;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.1s;
+            line-height: 1.2;
+        }
+
+        .upgrade-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #002255;
+        }
+
+        .upgrade-btn:disabled {
+            background: gray !important;
+            box-shadow: 0 6px 0 #333 !important;
+            cursor: not-allowed !important;
+        }
+
+        .purchased-upgrade {
+            background: linear-gradient(45deg, #00cc00, #009900) !important;
+            box-shadow: 0 6px 0 #005500 !important;
+            cursor: not-allowed !important;
+        }
+
+
+        /* --- RARITY COLORS --- */
+        .common {
+            color: #ffffff;
+            text-shadow: 0 0 5px #ffffff;
+        }
+
+        .uncommon {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        .rare {
+            color: #0088ff;
+            text-shadow: 0 0 10px #0088ff;
+        }
+
+        .epic {
+            color: #aa00ff;
+            text-shadow: 0 0 15px #aa00ff;
+        }
+
+        .legendary {
+            color: #ffaa00;
+            text-shadow: 0 0 20px #ffaa00;
+            animation: shake 0.5s infinite;
+        }
+
+        .mythical {
+            background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-size: 3rem !important;
+            animation: rainbow-spin 2s linear infinite;
+        }
+
+        .divine {
+            color: #ff00aa;
+            /* Pink/Red glow */
+            text-shadow: 0 0 25px #ff00aa;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        .cosmic {
+            color: #9933ff;
+            /* Deep purple */
+            text-shadow: 0 0 30px #9933ff, 0 0 50px #9933ff;
+            font-size: 3.5rem !important;
+            animation: cosmic-wave 3s linear infinite;
+        }
+
+        /* Checklist Styles */
+        .checklist {
+            margin-top: 40px;
+            border-top: 2px dashed #555;
+            padding-top: 20px;
+        }
+
+        #uncollected-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 800px;
+            margin: 10px auto;
+            font-size: 0.9rem;
+        }
+
+        .uncollected-item {
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px dashed #555;
+            opacity: 0.5;
+            /* Dim uncollected items */
+            text-decoration: line-through;
+        }
+
+        .collected-item {
+            opacity: 1 !important;
+            border: 1px solid #ffcc00 !important;
+            text-decoration: none !important;
+        }
+
         .inventory {
             margin-top: 40px;
             border-top: 2px dashed #555;
@@ -118,60 +328,62 @@
             font-size: 0.8rem;
         }
 
-        /* Rarity Colors & Animations */
-        .common { color: #ffffff; text-shadow: 0 0 5px #ffffff; }
-        .uncommon { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
-        .rare { color: #0088ff; text-shadow: 0 0 10px #0088ff; }
-        .epic { color: #aa00ff; text-shadow: 0 0 15px #aa00ff; }
-        .legendary { 
-            color: #ffaa00; 
-            text-shadow: 0 0 20px #ffaa00; 
-            animation: shake 0.5s infinite;
-        }
-        .mythical {
-            background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
-            -webkit-background-clip: text;
-            color: transparent;
-            font-size: 3rem !important;
-            animation: rainbow-spin 2s linear infinite;
+        /* Sell Button Style */
+        #sell-all-btn {
+            background: linear-gradient(45deg, #00aa00, #00cc00);
+            box-shadow: 0 5px 0 #006600;
+            font-size: 1rem;
+            padding: 10px 20px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            margin-bottom: 10px;
         }
 
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-1px, -1px); }
-            100% { transform: translate(1px, 1px); }
-        }
-        
-        @keyframes rainbow-spin {
-            0% { filter: hue-rotate(0deg); transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { filter: hue-rotate(360deg); transform: scale(1); }
+        #sell-all-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #006600;
         }
 
-        /* Flash Effect for high tier */
-        .flash {
-            animation: screen-flash 0.5s;
+        #reset-btn {
+            margin-top: 30px;
+            padding: 10px 20px;
+            background: #cc0000;
+            /* Red color for danger/reset */
+            box-shadow: 0 5px 0 #770000;
+            font-size: 1rem;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.1s;
         }
 
-        @keyframes screen-flash {
-            0% { background-color: white; }
-            100% { background-color: #1a1a1a; }
+        #reset-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #770000;
         }
     </style>
 </head>
+
 <body>
 
     <audio id="bg-music" loop>
-        <source src="YOUR_BGM_FILE_URL_HERE" type="audio/mp3"> 
-        Your browser does not support the audio element.
+        <source src="YOUR_BGM_FILE_URL_HERE" type="audio/mp3">
     </audio>
-
     <audio id="throttle-preventer" loop muted>
         <source src="YOUR_BGM_FILE_URL_HERE" type="audio/mp3">
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 12 (v1.0). Good luck stealing a Mythical!</p>
+    <p>Total Auras: 20 (v2.1). Speed Upgrades added!</p>
+
+    <div id="status-area">
+        <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
+        <div>💰 Coins: <span id="money-display" style="color: gold; font-weight: bold;">0</span></div>
+        <div>Collected: <span id="collected-count">0</span>/20</div>
+    </div>
 
     <div id="display-area">
         <div id="aura-name">???</div>
@@ -183,56 +395,482 @@
     <button id="roll-btn" class="btn" onclick="rollAura(false)">STEAL!</button>
     <button id="auto-roll-btn" class="btn" onclick="toggleAutoRoll()">AUTO ROLL</button>
 
+    <div id="boost-buttons">
+        <button id="boost-5x" class="boost-btn" onclick="activateBoost(5)">5X LUCK<br>(Cost: 💰1,000)</button>
+        <button id="boost-10x" class="boost-btn" onclick="activateBoost(10)">10X LUCK<br>(Cost: 💰5,000)</button>
+        <button id="boost-100x" class="boost-btn" onclick="activateBoost(100)">100X LUCK<br>(Cost: 💰50,000)</button>
+    </div>
+
+    <div id="shop-container">
+        <h2>⚡ AUTO ROLL SPEED SHOP <span id="speed-level-display">(Level 0)</span></h2>
+        <div id="speed-upgrades">
+            </div>
+    </div>
+    <div class="checklist">
+        <h2>📋 AURA CHECKLIST</h2>
+        <div id="uncollected-list">
+            </div>
+    </div>
+
     <div class="inventory">
-        <h2>🎒 STOLEN COLLECTION</h2>
+        <h2>🎒 STOLEN COLLECTION (Latest First)</h2>
+        <button id="sell-all-btn" onclick="sellAllItems()">SELL ALL ITEMS</button>
         <div class="item-list" id="inventory-list">
             </div>
     </div>
 
+    <button id="reset-btn" onclick="resetGame()">🚨 RESET GAME DATA 🚨</button>
+
     <script>
+        // Define currency and storage key globally
+        let money = 0;
+        let autoRollSpeed = 1000; // Default 1000ms
+        let speedLevel = 0; // Current speed upgrade level
+        
+        // Storage keys
+        const MONEY_STORAGE_KEY = 'aura_money_v2_1';
+        const SPEED_STORAGE_KEY = 'aura_speed_v2_1';
+        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_1';
+        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_1';
+
         const auras = [
-            { name: "NPC Energy", rarity: "Common", chance: 2, class: "common" },
-            { name: "Low Taper Fade", rarity: "Common", chance: 3, class: "common" },
-            { name: "Just a Chill Guy", rarity: "Uncommon", chance: 5, class: "uncommon" },
-            { name: "Bombastic Side Eye", rarity: "Uncommon", chance: 8, class: "uncommon" },
-            { name: "Grimace Shake", rarity: "Rare", chance: 15, class: "rare" },
-            { name: "Skibidi Toilet", rarity: "Rare", chance: 25, class: "rare" },
-            { name: "Fanum Tax", rarity: "Epic", chance: 50, class: "epic" },
-            { name: "6-7 BRAIN ROT", rarity: "Epic", chance: 80, class: "epic" },
-            { name: "Ohio Final Boss", rarity: "Epic", chance: 80, class: "epic" },
-            { name: "SIGMA GIGACHAD", rarity: "LEGENDARY", chance: 200, class: "legendary" },
-            { name: "MAXIMUM RIZZLER", rarity: "LEGENDARY", chance: 500, class: "legendary" },
-            { name: "✨ THE ONE PIECE ✨", rarity: "MYTHICAL", chance: 1000, class: "mythical" }
+            // Added value: How much money this aura is worth when stolen
+            { name: "NPC Energy", rarity: "Common", chance: 2, class: "common", value: 50 },
+            { name: "Low Taper Fade", rarity: "Common", chance: 3, class: "common", value: 60 },
+            { name: "Just a Chill Guy", rarity: "Uncommon", chance: 5, class: "uncommon", value: 75 },
+            { name: "Bombastic Side Eye", rarity: "Uncommon", chance: 8, class: "uncommon", value: 100 },
+            { name: "Grimace Shake", rarity: "Rare", chance: 15, class: "rare", value: 150 },
+            { name: "Skibidi Toilet", rarity: "Rare", chance: 25, class: "rare", value: 250 },
+            { name: "Gen Z Slang Master", rarity: "Rare", chance: 30, class: "rare", value: 300 },
+            { name: "Fanum Tax", rarity: "Epic", chance: 50, class: "epic", value: 500 },
+            { name: "6-7 BRAIN ROT", rarity: "Epic", chance: 80, class: "epic", value: 800 },
+            { name: "Ohio Final Boss", rarity: "Epic", chance: 80, class: "epic", value: 900 },
+            { name: "Rizz God", rarity: "Epic", chance: 100, class: "epic", value: 1200 },
+            { name: "SIGMA GIGACHAD", rarity: "LEGENDARY", chance: 200, class: "legendary", value: 2500 },
+            { name: "MAXIMUM RIZZLER", rarity: "LEGENDARY", chance: 500, class: "legendary", value: 5000 },
+            { name: "BUSSIN' Aura", rarity: "LEGENDARY", chance: 600, class: "legendary", value: 7500 },
+            { name: "✨ THE ONE PIECE ✨", rarity: "MYTHICAL", chance: 1000, class: "mythical", value: 15000 },
+            { name: "Infinite Brain Rot", rarity: "MYTHICAL", chance: 1200, class: "mythical", value: 20000 },
+            { name: "Tung Tung Shar", rarity: "DIVINE", chance: 2500, class: "divine", value: 30000 },
+            { name: "DeeMeeTree", rarity: "DIVINE", chance: 2500, class: "divine", value: 35000 },
+            { name: "Sigma Chad", rarity: "COSMIC", chance: 5000, class: "cosmic", value: 50000 },
+            { name: "Big Back", rarity: "COSMIC", chance: 5000, class: "cosmic", value: 75000 }
         ];
 
+        const speedUpgrades = [
+            { id: 1, cost: 10000, speed: 750, label: "Fast Roll (750ms)" },
+            { id: 2, cost: 50000, speed: 500, label: "Turbo Roll (500ms)" },
+            { id: 3, cost: 250000, speed: 250, label: "Max Speed (250ms)" }
+        ];
+
+        // GLOBAL STATE VARIABLES
         let isRolling = false;
         let autoRollInterval = null;
+        let luckMultiplier = 1;
+        let rollsLeft = 0;
+        let cooldowns = {};
+
+        // Collection Tracking
+        let collectedAuras = new Set();
+        let inventory = []; 
         
-        // Get the audio elements
-        const musicElement = document.getElementById('bg-music');
-        const throttleElement = document.getElementById('throttle-preventer');
+        // Boost Button Definitions
+        const boostButtons = [
+            { id: 'boost-5x', mult: 5, cost: 1000, duration: 300, rolls: 10, name: '5X LUCK' },
+            { id: 'boost-10x', mult: 10, cost: 5000, duration: 600, rolls: 5, name: '10X LUCK' },
+            { id: 'boost-100x', mult: 100, cost: 50000, duration: 6000, rolls: 1, name: '100X LUCK' }
+        ];
+
+        // Store active cooldown timers
+        let cooldownTimers = {};
+
+
+        function getButton(id) {
+            return document.getElementById(id);
+        }
+
+        // --- Money and Speed Persistence ---
+        function updateMoneyDisplay() {
+            getButton('money-display').textContent = money.toLocaleString();
+            // Crucial: Update boost button visibility/state whenever money changes
+            updateLuckDisplay(); 
+            renderSpeedShop(); // Also refresh speed shop buttons
+        }
+
+        function loadMoney() {
+            const storedMoney = localStorage.getItem(MONEY_STORAGE_KEY);
+            if (storedMoney !== null) {
+                money = parseInt(storedMoney);
+            } else {
+                money = 500;
+            }
+        }
+
+        function saveMoney() {
+            localStorage.setItem(MONEY_STORAGE_KEY, money.toString());
+        }
+
+        function loadSpeed() {
+            const storedSpeed = localStorage.getItem(SPEED_STORAGE_KEY);
+            if (storedSpeed !== null) {
+                // Stored value is the resulting speed (ms)
+                autoRollSpeed = parseInt(storedSpeed);
+                
+                // Determine the current speed level from the autoRollSpeed
+                let currentLevel = 0;
+                speedUpgrades.forEach(upgrade => {
+                    if (upgrade.speed === autoRollSpeed) {
+                        currentLevel = upgrade.id;
+                    }
+                });
+                speedLevel = currentLevel;
+            }
+        }
+
+        function saveSpeed() {
+            localStorage.setItem(SPEED_STORAGE_KEY, autoRollSpeed.toString());
+        }
+        // --- End Money and Speed Persistence ---
+
+
+        // --- Initialization and Storage ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMoney();
+            loadSpeed(); // Load speed settings
+            updateMoneyDisplay();
+            loadCollection();
+            loadInventory(); 
+
+            // Initialize cooldowns
+            boostButtons.forEach(b => {
+                cooldowns[b.id] = 0;
+            });
+
+            // Render initial displays
+            updateLuckDisplay();
+            renderChecklist();
+            updateCollectedCount();
+            renderInventory(); 
+            renderSpeedShop(); // Render speed shop on load
+        });
+
+        function loadCollection() {
+            const storedCollection = localStorage.getItem(COLLECTION_STORAGE_KEY);
+            if (storedCollection) {
+                try {
+                    const parsed = JSON.parse(storedCollection);
+                    collectedAuras = new Set(parsed);
+                } catch (e) {
+                    collectedAuras = new Set();
+                }
+            }
+        }
+
+        function saveCollection() {
+            localStorage.setItem(COLLECTION_STORAGE_KEY, JSON.stringify(Array.from(collectedAuras)));
+        }
+
+        function loadInventory() {
+            const storedInventory = localStorage.getItem(INVENTORY_STORAGE_KEY);
+            if (storedInventory) {
+                try {
+                    inventory = JSON.parse(storedInventory);
+                } catch (e) {
+                    inventory = [];
+                }
+            }
+        }
+
+        function saveInventory() {
+            localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(inventory));
+        }
+
+        function updateCollectedCount() {
+            getButton('collected-count').textContent = `${collectedAuras.size}/${auras.length}`;
+        }
+
+        function saveAuraToCollection(auraName) {
+            if (!collectedAuras.has(auraName)) {
+                collectedAuras.add(auraName);
+                saveCollection();
+                renderChecklist();
+                updateCollectedCount();
+            }
+        }
+
+        function renderChecklist() {
+            const listEl = getButton('uncollected-list');
+            listEl.innerHTML = '';
+
+            auras.forEach(aura => {
+                const div = document.createElement('div');
+                div.className = "uncollected-item";
+
+                if (collectedAuras.has(aura.name)) {
+                    div.classList.add('collected-item');
+                }
+
+                div.innerHTML = `<span class="${aura.class}">${aura.name}</span><br>${aura.rarity}`;
+                listEl.appendChild(div);
+            });
+        }
+
+        function renderInventory() {
+             const list = getButton('inventory-list');
+             list.innerHTML = '';
+
+             inventory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "inv-item";
+
+                // Look up the full aura object to get class and rarity
+                const fullAura = auras.find(a => a.name === item.name);
+                const itemClass = fullAura ? fullAura.class : '';
+                const itemRarity = fullAura ? fullAura.rarity : 'Unknown';
+
+                div.innerHTML = `<strong class="${itemClass}">${item.name}</strong><br>${itemRarity}`;
+                list.appendChild(div);
+            });
+
+            // Update the sell button text to show how many items can be sold
+            const sellBtn = getButton('sell-all-btn');
+            sellBtn.textContent = `SELL ALL ITEMS (${inventory.length})`;
+        }
+
+        function sellAllItems() {
+            if (inventory.length === 0) return;
+
+            let totalValue = 0;
+            
+            // Calculate total value
+            inventory.forEach(item => {
+                totalValue += item.value;
+            });
+
+            if (confirm(`Are you sure you want to sell all ${inventory.length} items for a total of 💰${totalValue.toLocaleString()}?`)) {
+                money += totalValue;
+                inventory = []; // Clear inventory array
+                saveMoney();
+                saveInventory();
+                updateMoneyDisplay();
+                renderInventory(); // Update the display
+            }
+        }
+
+        function resetGame() {
+            if (confirm("Are you sure you want to reset ALL game progress (collection, money, and cooldowns)? This cannot be undone.")) {
+                // Clear all stored data
+                localStorage.removeItem(COLLECTION_STORAGE_KEY);
+                localStorage.removeItem(INVENTORY_STORAGE_KEY);
+                localStorage.removeItem(MONEY_STORAGE_KEY);
+                localStorage.removeItem(SPEED_STORAGE_KEY); // Reset Speed too!
+
+                // Stop any running cooldown timers
+                for (const timerId in cooldownTimers) {
+                    clearInterval(cooldownTimers[timerId]);
+                }
+
+                // Reload the page to reset all in-memory variables and displays
+                window.location.reload();
+            }
+        }
+
+        // --- Auto Roll Speed Shop Functions ---
+
+        function renderSpeedShop() {
+            const shopEl = getButton('speed-upgrades');
+            shopEl.innerHTML = '';
+            getButton('speed-level-display').textContent = `(Level ${speedLevel}. Current: ${autoRollSpeed}ms)`;
+
+            speedUpgrades.forEach(upgrade => {
+                const btn = document.createElement('button');
+                btn.className = 'upgrade-btn';
+                
+                // Determine state
+                const isPurchased = upgrade.id <= speedLevel;
+
+                if (isPurchased) {
+                    btn.textContent = `${upgrade.label} - PURCHASED`;
+                    btn.disabled = true;
+                    btn.classList.add('purchased-upgrade');
+                } else {
+                    btn.textContent = `${upgrade.label} - Cost: 💰${upgrade.cost.toLocaleString()}`;
+                    btn.onclick = () => buySpeedUpgrade(upgrade);
+                    
+                    // Disable if too poor
+                    if (money < upgrade.cost) {
+                        btn.disabled = true;
+                    }
+                }
+                shopEl.appendChild(btn);
+            });
+        }
+
+        function buySpeedUpgrade(upgrade) {
+            if (money >= upgrade.cost && upgrade.id === speedLevel + 1) {
+                // Deduct money
+                money -= upgrade.cost;
+                
+                // Apply upgrade
+                speedLevel = upgrade.id;
+                autoRollSpeed = upgrade.speed;
+
+                // Save and refresh
+                saveMoney();
+                saveSpeed(); 
+                updateMoneyDisplay(); // This calls renderSpeedShop()
+                
+                // If auto rolling, restart the interval immediately to apply speed change
+                if (autoRollInterval) {
+                    // This will stop the old, slow interval and start the new, fast one
+                    toggleAutoRoll(); 
+                    toggleAutoRoll();
+                }
+            }
+        }
+
+
+        // --- Other Game Functions ---
+
+        // Function to format seconds into minutes:seconds:hours
+        const formatTime = (totalSeconds) => {
+            if (totalSeconds < 60) return `${totalSeconds}s`;
+            if (totalSeconds < 3600) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+            }
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours}h ${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+        };
+
+        function updateBoostButtonDisplay(id, name, cost, timeRemaining = 0, currentMultiplier) {
+            const btn = getButton(id);
+            if (!btn) return;
+
+            const boost = boostButtons.find(b => b.id === id);
+
+            // 1. Check if this specific boost is currently active
+            if (currentMultiplier === boost.mult) {
+                btn.disabled = true;
+                btn.innerHTML = `BOOST ACTIVE<br>(${rollsLeft} Rolls)`;
+                btn.classList.add('active-boost');
+                btn.classList.remove('disabled-boost');
+            }
+            // 2. Check for cooldown
+            else if (timeRemaining > 0) {
+                btn.disabled = true;
+                btn.innerHTML = `COOLDOWN<br>(${formatTime(timeRemaining)})`;
+                btn.classList.add('disabled-boost');
+                btn.classList.remove('active-boost');
+            }
+            // 3. Check for money availability
+            else if (money < cost) {
+                btn.disabled = true;
+                btn.innerHTML = `${name}<br>(Cost: 💰${cost.toLocaleString()}) <span style="color:red;">(TOO POOR)</span>`;
+                btn.classList.add('disabled-boost');
+                btn.classList.remove('active-boost');
+            }
+            // 4. Available to buy 
+            else {
+                btn.disabled = false;
+                btn.innerHTML = `${name}<br>(Cost: 💰${cost.toLocaleString()})`;
+                btn.classList.remove('disabled-boost');
+                btn.classList.remove('active-boost');
+            }
+        }
+
+        function updateLuckDisplay() {
+            const luckDisplayEl = getButton('luck-display');
+
+            if (luckMultiplier > 1) {
+                luckDisplayEl.textContent = `${luckMultiplier}x (${rollsLeft} rolls left)`;
+                luckDisplayEl.className = 'luck-boost';
+                if (luckMultiplier === 10) luckDisplayEl.classList.add('x10-boost');
+                else if (luckMultiplier === 100) luckDisplayEl.classList.add('x100-boost');
+            } else {
+                luckDisplayEl.textContent = '1x';
+                luckDisplayEl.className = 'luck-boost';
+            }
+
+            // Update all boost button states
+            boostButtons.forEach(b => {
+                updateBoostButtonDisplay(b.id, b.name, b.cost, cooldowns[b.id], luckMultiplier);
+            });
+        }
+
+        function startCooldown(boostId, cooldownTime) {
+            if (cooldownTimers[boostId]) {
+                clearInterval(cooldownTimers[boostId]);
+            }
+
+            cooldowns[boostId] = cooldownTime;
+
+            const timer = setInterval(() => {
+                cooldowns[boostId]--;
+                // Update specific button display only if it's in cooldown
+                if (luckMultiplier !== boostButtons.find(b => b.id === boostId).mult) {
+                    updateBoostButtonDisplay(boostId, boostButtons.find(b => b.id === boostId).name, boostButtons.find(b => b.id === boostId).cost, cooldowns[boostId], luckMultiplier);
+                }
+
+                if (cooldowns[boostId] <= 0) {
+                    clearInterval(timer);
+                    delete cooldownTimers[boostId];
+                    cooldowns[boostId] = 0;
+                    updateLuckDisplay(); // Refresh all buttons
+                }
+            }, 1000);
+
+            cooldownTimers[boostId] = timer;
+        }
+
+        function activateBoost(multiplier) {
+            const boost = boostButtons.find(b => b.mult === multiplier);
+
+            if (luckMultiplier > 1 || cooldowns[boost.id] > 0) return;
+            if (money < boost.cost) return;
+
+            // DEDUCT MONEY
+            money -= boost.cost;
+            saveMoney();
+            updateMoneyDisplay(); 
+
+            // ACTIVATE BOOST
+            luckMultiplier = multiplier;
+            rollsLeft = boost.rolls;
+
+            startCooldown(boost.id, boost.duration);
+        }
 
         async function rollAura(isAuto) {
             if (isRolling) return;
             isRolling = true;
-            
-            const btn = document.getElementById('roll-btn');
-            
+
+            const btn = getButton('roll-btn');
+
             if (!isAuto) {
                 btn.disabled = true;
                 btn.innerText = "STEALING...";
             }
-            
-            const nameEl = document.getElementById('aura-name');
-            const rarityEl = document.getElementById('aura-rarity');
+
+            const nameEl = getButton('aura-name');
+            const rarityEl = getButton('aura-rarity');
             let ticks = 0;
             let maxTicks = 10;
-            
+            const rollMoney = 10; 
+
+            // Grant money per roll
+            money += rollMoney;
+            saveMoney();
+            updateMoneyDisplay();
+
             await new Promise(resolve => {
                 let interval = setInterval(() => {
                     let randomTemp = auras[Math.floor(Math.random() * auras.length)];
                     nameEl.innerText = randomTemp.name;
-                    nameEl.className = ""; 
+                    nameEl.className = "";
                     rarityEl.innerText = "...";
                     ticks++;
 
@@ -242,7 +880,7 @@
                     }
                 }, 100);
             });
-            
+
             finalizeRoll();
 
             isRolling = false;
@@ -250,33 +888,49 @@
                 btn.disabled = false;
                 btn.innerText = "STEAL AGAIN";
             }
+
+            // LUCK DECREMENT LOGIC
+            if (luckMultiplier > 1) {
+                rollsLeft--;
+                if (rollsLeft <= 0) {
+                    luckMultiplier = 1;
+                    rollsLeft = 0;
+                }
+                updateLuckDisplay();
+            }
         }
 
         function finalizeRoll() {
-            const rand = Math.floor(Math.random() * 1000) + 1;
             let result = null;
 
             const sortedAuras = [...auras].sort((a, b) => b.chance - a.chance);
 
             for (let aura of sortedAuras) {
-                let threshold = 1000 / aura.chance;
+                let threshold = (1000 / aura.chance) * luckMultiplier;
+
                 if (Math.random() * 1000 <= threshold) {
                     result = aura;
                     break;
                 }
             }
-            
+
             if (!result) result = auras[0];
+
+            money += result.value;
+            saveMoney();
+            updateMoneyDisplay();
+
             displayResult(result);
+            saveAuraToCollection(result.name);
         }
 
         function displayResult(item) {
-            const nameEl = document.getElementById('aura-name');
-            const rarityEl = document.getElementById('aura-rarity');
+            const nameEl = getButton('aura-name');
+            const rarityEl = getButton('aura-rarity');
 
             nameEl.innerText = item.name;
             nameEl.className = item.class;
-            rarityEl.innerText = `1 in ${item.chance} • ${item.rarity}`;
+            rarityEl.innerHTML = `1 in ${item.chance} • ${item.rarity}<br>+💰${item.value.toLocaleString()} from steal`;
 
             if (item.chance >= 50) {
                 document.body.classList.add("flash");
@@ -287,17 +941,18 @@
         }
 
         function addToInventory(item) {
-            const list = document.getElementById('inventory-list');
-            const div = document.createElement('div');
-            div.className = "inv-item";
-            div.innerHTML = `<strong class="${item.class}">${item.name}</strong><br>${item.rarity}`;
-            
-            list.insertBefore(div, list.firstChild);
+            inventory.unshift({
+                name: item.name,
+                value: item.value
+            });
+
+            saveInventory();
+            renderInventory();
         }
-        
+
         function toggleAutoRoll() {
-            const autoBtn = document.getElementById('auto-roll-btn');
-            const manualBtn = document.getElementById('roll-btn');
+            const autoBtn = getButton('auto-roll-btn');
+            const manualBtn = getButton('roll-btn');
 
             if (autoRollInterval) {
                 // STOP AUTO ROLL AND MUSIC
@@ -305,28 +960,33 @@
                 autoRollInterval = null;
                 autoBtn.innerText = "AUTO ROLL";
                 manualBtn.disabled = false;
-                
-                musicElement.pause();
-                throttleElement.pause();
-                musicElement.currentTime = 0;
-                throttleElement.currentTime = 0;
+
+                // Stop music and throttle prevention
+                const musicElement = getButton('bg-music');
+                const throttleElement = getButton('throttle-preventer');
+                if (musicElement) { musicElement.pause(); musicElement.currentTime = 0; }
+                if (throttleElement) { throttleElement.pause(); throttleElement.currentTime = 0; }
+
 
             } else {
                 // START AUTO ROLL AND MUSIC
                 manualBtn.disabled = true;
                 autoBtn.innerText = "STOP AUTO ROLL";
-                
-                // Start music and throttle prevention
-                musicElement.play().catch(e => console.error("Music Autoplay prevented:", e));
-                throttleElement.play().catch(e => console.error("Throttle prevention failed:", e));
 
-                // Start the interval
+                // Start music and throttle prevention
+                const musicElement = getButton('bg-music');
+                const throttleElement = getButton('throttle-preventer');
+                if (musicElement) musicElement.play().catch(e => console.error("Music Autoplay prevented:", e));
+                if (throttleElement) throttleElement.play().catch(e => console.error("Throttle prevention failed:", e));
+
+                // Start the interval, using the currently loaded autoRollSpeed
                 autoRollInterval = setInterval(() => {
-                    rollAura(true); 
-                }, 1000);
+                    rollAura(true);
+                }, autoRollSpeed);
             }
         }
     </script>
 
 </body>
+
 </html>
