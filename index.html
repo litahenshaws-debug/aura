@@ -39,7 +39,6 @@
 
         .luck-boost {
             color: #ffcc00;
-            /* Gold color for luck */
             font-weight: bold;
         }
 
@@ -47,12 +46,9 @@
             color: #00ffff;
         }
 
-        /* Cyan for 10x */
         .x100-boost {
             color: #ff00ff;
         }
-
-        /* Magenta for 100x */
 
         /* The Main Display Area */
         #display-area {
@@ -82,7 +78,7 @@
             font-style: italic;
         }
 
-        /* Styling for all buttons */
+        /* Rolling Buttons */
         .btn {
             border: none;
             padding: 20px 50px;
@@ -96,7 +92,6 @@
             margin: 5px;
         }
 
-        /* Manual Roll Button Style */
         #roll-btn {
             background: linear-gradient(45deg, #ff0000, #ff8800);
             box-shadow: 0 8px 0 #880000;
@@ -107,7 +102,6 @@
             box-shadow: 0 0 0 #880000;
         }
 
-        /* Auto Roll Button Style */
         #auto-roll-btn {
             background: linear-gradient(45deg, #00ffff, #0088ff);
             box-shadow: 0 8px 0 #0055aa;
@@ -119,15 +113,73 @@
             box-shadow: 0 0 0 #0055aa;
         }
 
-        /* Luck Button Base Style */
+        #roll-btn:disabled,
+        #auto-roll-btn:disabled {
+            background: gray !important;
+            box-shadow: 0 8px 0 #333 !important;
+            cursor: not-allowed !important;
+        }
+        
+        /* --- TAB UI STYLES --- */
+        #tabs-container {
+            max-width: 800px;
+            margin: 30px auto 10px;
+            border-bottom: 2px solid #555;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-button {
+            background: #444;
+            color: white;
+            border: 2px solid #555;
+            border-bottom: none;
+            padding: 10px 20px;
+            margin: 0 2px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            transition: background 0.1s;
+        }
+
+        .tab-button:hover {
+            background: #555;
+        }
+
+        .tab-button.active {
+            background: #333;
+            color: #ffcc00;
+            border-color: #ffcc00;
+            border-bottom: 2px solid #333; /* Hides the bottom border of the tab container */
+        }
+        
+        .tab-content {
+            background: #333;
+            border: 2px solid #555;
+            border-radius: 0 0 10px 10px;
+            padding: 20px 10px;
+            max-width: 800px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Luck Shop Content Styles */
         .boost-btn {
             box-shadow: 0 8px 0;
             font-size: 1.2rem;
             padding: 15px 25px;
             color: black;
-            margin-top: 10px;
+            margin: 10px;
             display: inline-block;
             line-height: 1.2;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
         }
 
         .boost-btn:active {
@@ -135,19 +187,16 @@
             box-shadow: 0 0 0;
         }
 
-        /* 5x Luck Button Style */
         #boost-5x {
             background: linear-gradient(45deg, #ffcc00, #ffa300);
             box-shadow: 0 8px 0 #cc8800;
         }
 
-        /* 10x Luck Button Style */
         #boost-10x {
             background: linear-gradient(45deg, #00ffff, #00ff88);
             box-shadow: 0 8px 0 #008855;
         }
 
-        /* 100x Luck Button Style */
         #boost-100x {
             background: linear-gradient(45deg, #ff00ff, #aa00ff);
             box-shadow: 0 8px 0 #880088;
@@ -159,36 +208,18 @@
             cursor: not-allowed !important;
         }
 
-        /* New active state for boost button */
         .active-boost {
             background: #ff4500 !important;
             box-shadow: 0 8px 0 #992a00 !important;
             color: white !important;
         }
-
-
-        #roll-btn:disabled,
-        #auto-roll-btn:disabled {
-            background: gray !important;
-            box-shadow: 0 8px 0 #333 !important;
-            cursor: not-allowed !important;
-        }
-
-        /* --- Shop Section Styling --- */
-        #shop-container {
-            margin-top: 30px;
-            border: 2px solid #555;
-            border-radius: 10px;
-            padding: 20px 10px;
-            background: #282828;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        #shop-container h2 {
+        
+        /* Speed Shop Content Styles */
+        #speed-shop h2, #luck-shop h2, #rebirth-shop h2 {
             margin-top: 0;
             color: #ffcc00;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
         }
 
         .upgrade-btn {
@@ -222,18 +253,11 @@
             cursor: not-allowed !important;
         }
 
-        /* --- Rebirth Section Styling --- */
-        #rebirth-container {
-            margin-top: 30px;
-            border: 3px solid #ffaa00;
-            border-radius: 10px;
-            padding: 20px 10px;
-            background: #3a2828;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+        /* Rebirth Shop Content Styles */
+        #rebirth-shop {
+            background: #333; /* Inherits from .tab-content */
         }
-
+        
         #rebirth-btn {
             background: linear-gradient(45deg, #ff4500, #cc0000);
             box-shadow: 0 8px 0 #992a00;
@@ -257,7 +281,7 @@
             box-shadow: 0 8px 0 #333 !important;
             cursor: not-allowed !important;
         }
-
+        
         /* --- RARITY COLORS --- */
         .common {
             color: #ffffff;
@@ -295,14 +319,12 @@
 
         .divine {
             color: #ff00aa;
-            /* Pink/Red glow */
             text-shadow: 0 0 25px #ff00aa;
             animation: pulse 1.5s infinite alternate;
         }
 
         .cosmic {
             color: #9933ff;
-            /* Deep purple */
             text-shadow: 0 0 30px #9933ff, 0 0 50px #9933ff;
             font-size: 3.5rem !important;
             animation: cosmic-wave 3s linear infinite;
@@ -331,7 +353,6 @@
             border-radius: 5px;
             border: 1px dashed #555;
             opacity: 0.5;
-            /* Dim uncollected items */
             text-decoration: line-through;
         }
 
@@ -386,7 +407,6 @@
             margin-top: 30px;
             padding: 10px 20px;
             background: #cc0000;
-            /* Red color for danger/reset */
             box-shadow: 0 5px 0 #770000;
             font-size: 1rem;
             color: white;
@@ -412,7 +432,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 20 (v2.2). Rebirth System added!</p>
+    <p>Total Auras: 20 (v2.3). Tabbed UI added!</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -430,23 +450,37 @@
 
     <button id="roll-btn" class="btn" onclick="rollAura(false)">STEAL!</button>
     <button id="auto-roll-btn" class="btn" onclick="toggleAutoRoll()">AUTO ROLL</button>
-
-    <div id="boost-buttons">
-        <button id="boost-5x" class="boost-btn" onclick="activateBoost(5)">5X LUCK<br>(Cost: 💰1,000)</button>
-        <button id="boost-10x" class="boost-btn" onclick="activateBoost(10)">10X LUCK<br>(Cost: 💰5,000)</button>
-        <button id="boost-100x" class="boost-btn" onclick="activateBoost(100)">100X LUCK<br>(Cost: 💰50,000)</button>
+    
+    <div id="tabs-container">
+        <button class="tab-button" onclick="openTab('luck-shop', this)" id="luck-tab">💰 Luck Boosts</button>
+        <button class="tab-button" onclick="openTab('speed-shop', this)" id="speed-tab">⚡ Speed Shop</button>
+        <button class="tab-button" onclick="openTab('rebirth-shop', this)" id="rebirth-tab">🔥 Rebirth</button>
     </div>
 
-    <div id="shop-container">
-        <h2>⚡ AUTO ROLL SPEED SHOP <span id="speed-level-display">(Level 0)</span></h2>
-        <div id="speed-upgrades">
+    <div id="tab-content-container">
+        
+        <div id="luck-shop" class="tab-content active">
+            <h2>💰 Luck Boosts (Temporary)</h2>
+            <div id="boost-buttons">
+                <button id="boost-5x" class="boost-btn" onclick="activateBoost(5)">5X LUCK<br>(Cost: 💰1,000)</button>
+                <button id="boost-10x" class="boost-btn" onclick="activateBoost(10)">10X LUCK<br>(Cost: 💰5,000)</button>
+                <button id="boost-100x" class="boost-btn" onclick="activateBoost(100)">100X LUCK<br>(Cost: 💰50,000)</button>
             </div>
-    </div>
-    <div id="rebirth-container">
-        <h2>🔥 REBIRTH 🔥</h2>
-        <p>Current Income Multiplier: <span id="income-mult-display" style="color: lime; font-weight: bold;">1.0x</span></p>
-        <p id="rebirth-cost-display">Reach 💰1,000,000 to Rebirth.</p>
-        <button id="rebirth-btn" onclick="doRebirth()" disabled>REBIRTH NOW</button>
+        </div>
+
+        <div id="speed-shop" class="tab-content">
+            <h2>⚡ AUTO ROLL SPEED SHOP <span id="speed-level-display">(Level 0)</span></h2>
+            <div id="speed-upgrades">
+                </div>
+        </div>
+        
+        <div id="rebirth-shop" class="tab-content">
+            <h2>🔥 REBIRTH 🔥</h2>
+            <p>Current Income Multiplier: <span id="income-mult-display" style="color: lime; font-weight: bold;">1.0x</span></p>
+            <p id="rebirth-cost-display">Reach 💰1,000,000 to Rebirth.</p>
+            <button id="rebirth-btn" onclick="doRebirth()" disabled>REBIRTH NOW</button>
+        </div>
+        
     </div>
     <div class="checklist">
         <h2>📋 AURA CHECKLIST</h2>
@@ -466,22 +500,21 @@
     <script>
         // Define currency and storage key globally
         let money = 0;
-        let autoRollSpeed = 1000; // Default 1000ms
-        let speedLevel = 0; // Current speed upgrade level
-        let power = 0; // NEW: Rebirth currency
-        let powerMultiplier = 1; // NEW: Income multiplier
-        const BASE_REBIRTH_COST = 1000000; // 1 Million coins
-        const POWER_BONUS = 2; // Each power doubles (2x) income
+        let autoRollSpeed = 1000;
+        let speedLevel = 0;
+        let power = 0;
+        let powerMultiplier = 1;
+        const BASE_REBIRTH_COST = 1000000;
+        const POWER_BONUS = 2;
 
-        // Storage keys
-        const MONEY_STORAGE_KEY = 'aura_money_v2_2';
-        const SPEED_STORAGE_KEY = 'aura_speed_v2_2';
-        const POWER_STORAGE_KEY = 'aura_power_v2_2'; // NEW
-        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_2';
-        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_2';
+        // Storage keys updated for v2.3
+        const MONEY_STORAGE_KEY = 'aura_money_v2_3';
+        const SPEED_STORAGE_KEY = 'aura_speed_v2_3';
+        const POWER_STORAGE_KEY = 'aura_power_v2_3';
+        const COLLECTION_STORAGE_KEY = 'aura_collection_v2_3';
+        const INVENTORY_STORAGE_KEY = 'aura_inventory_v2_3';
 
         const auras = [
-            // Added value: How much money this aura is worth when stolen
             { name: "NPC Energy", rarity: "Common", chance: 2, class: "common", value: 50 },
             { name: "Low Taper Fade", rarity: "Common", chance: 3, class: "common", value: 60 },
             { name: "Just a Chill Guy", rarity: "Uncommon", chance: 5, class: "uncommon", value: 75 },
@@ -536,10 +569,28 @@
             return document.getElementById(id);
         }
 
+        // --- Tab Control Function ---
+        function openTab(tabName, elmnt) {
+            // Hide all elements with class="tab-content"
+            const tabcontent = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove('active');
+            }
+
+            // Remove the "active" class from all tab buttons
+            const tablinks = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove('active');
+            }
+
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).classList.add('active');
+            elmnt.classList.add('active');
+        }
+
         // --- Money, Power, and Speed Persistence ---
 
         function calculatePowerMultiplier() {
-            // Power multiplier is POWER_BONUS (2) raised to the power level
             powerMultiplier = Math.pow(POWER_BONUS, power);
         }
 
@@ -547,12 +598,11 @@
             getButton('money-display').textContent = money.toLocaleString();
             updateLuckDisplay(); 
             renderSpeedShop(); 
-            updateRebirthDisplay(); // NEW
+            updateRebirthDisplay(); 
         }
         
         function updatePowerDisplay() {
             getButton('power-display').textContent = power.toLocaleString();
-            getButton('income-mult-display').textContent = `${powerMultiplier.toFixed(1)}x`;
             updateRebirthDisplay();
         }
 
@@ -606,9 +656,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadMoney();
             loadSpeed(); 
-            loadPower(); // NEW: Load power
+            loadPower(); 
             updateMoneyDisplay();
-            updatePowerDisplay(); // NEW: Update power display
+            updatePowerDisplay();
             loadCollection();
             loadInventory(); 
 
@@ -623,7 +673,10 @@
             updateCollectedCount();
             renderInventory(); 
             renderSpeedShop(); 
-            updateRebirthDisplay(); // NEW
+            updateRebirthDisplay(); 
+            
+            // Set default tab to Luck Boosts on load
+            openTab('luck-shop', getButton('luck-tab'));
         });
 
         function loadCollection() {
@@ -712,7 +765,6 @@
 
             let totalValue = 0;
             
-            // Calculate total value based on original value * power multiplier
             inventory.forEach(item => {
                 totalValue += Math.floor(item.value * powerMultiplier);
             });
@@ -728,7 +780,6 @@
         }
 
         function getRebirthCost() {
-            // Cost scales by the current power level (e.g., 1M, 2M, 4M, 8M, etc.)
             return BASE_REBIRTH_COST * Math.pow(POWER_BONUS, power);
         }
 
@@ -755,23 +806,19 @@
             
             if (confirm(`Are you sure you want to Rebirth? This will reset your coins, speed upgrades, and inventory, but you will gain 1 Power and permanently multiply your income by ${POWER_BONUS}x!`)) {
                 
-                // 1. Gain Power
                 power += 1;
                 calculatePowerMultiplier();
                 savePower();
                 
-                // 2. Reset relevant variables
-                money = 500; // Give starting cash
+                money = 500;
                 autoRollSpeed = 1000;
                 speedLevel = 0;
                 inventory = [];
                 
-                // 3. Save Resets
                 saveMoney();
-                saveSpeed(); // Resets stored speed
+                saveSpeed();
                 saveInventory();
                 
-                // 4. Update displays (which calls all render functions)
                 updateMoneyDisplay();
                 updatePowerDisplay();
                 
@@ -782,19 +829,16 @@
 
         function resetGame() {
             if (confirm("Are you sure you want to reset ALL game progress? This cannot be undone.")) {
-                // Clear all stored data
                 localStorage.removeItem(COLLECTION_STORAGE_KEY);
                 localStorage.removeItem(INVENTORY_STORAGE_KEY);
                 localStorage.removeItem(MONEY_STORAGE_KEY);
                 localStorage.removeItem(SPEED_STORAGE_KEY);
-                localStorage.removeItem(POWER_STORAGE_KEY); // Reset Power too!
+                localStorage.removeItem(POWER_STORAGE_KEY);
 
-                // Stop any running cooldown timers
                 for (const timerId in cooldownTimers) {
                     clearInterval(cooldownTimers[timerId]);
                 }
 
-                // Reload the page to reset all in-memory variables and displays
                 window.location.reload();
             }
         }
@@ -969,7 +1013,7 @@
             let maxTicks = 10;
             const rollMoney = 10; 
 
-            // NEW: Grant money per roll, multiplied by powerMultiplier
+            // Grant money per roll, multiplied by powerMultiplier
             money += Math.floor(rollMoney * powerMultiplier);
             saveMoney();
             updateMoneyDisplay();
@@ -1024,7 +1068,6 @@
 
             if (!result) result = auras[0];
 
-            // NEW: Add the aura's base value, multiplied by powerMultiplier
             const coinGain = Math.floor(result.value * powerMultiplier);
             money += coinGain;
             saveMoney();
@@ -1040,7 +1083,7 @@
 
             nameEl.innerText = item.name;
             nameEl.className = item.class;
-            // Display the actual coin gain
+            
             rarityEl.innerHTML = `1 in ${item.chance} • ${item.rarity}<br>+💰${coinGain.toLocaleString()} from steal`;
 
             if (item.chance >= 50) {
@@ -1052,10 +1095,9 @@
         }
 
         function addToInventory(item) {
-            // Store the item's name and BASE value for selling later
             inventory.unshift({
                 name: item.name,
-                value: item.value // Store the base value (pre-multiplier)
+                value: item.value
             });
 
             saveInventory();
@@ -1067,7 +1109,6 @@
             const manualBtn = getButton('roll-btn');
 
             if (autoRollInterval) {
-                // STOP AUTO ROLL AND MUSIC
                 clearInterval(autoRollInterval);
                 autoRollInterval = null;
                 autoBtn.innerText = "AUTO ROLL";
@@ -1080,7 +1121,6 @@
 
 
             } else {
-                // START AUTO ROLL AND MUSIC
                 manualBtn.disabled = true;
                 autoBtn.innerText = "STOP AUTO ROLL";
 
@@ -1089,7 +1129,6 @@
                 if (musicElement) musicElement.play().catch(e => console.error("Music Autoplay prevented:", e));
                 if (throttleElement) throttleElement.play().catch(e => console.error("Throttle prevention failed:", e));
 
-                // Start the interval, using the currently loaded autoRollSpeed
                 autoRollInterval = setInterval(() => {
                     rollAura(true);
                 }, autoRollSpeed);
