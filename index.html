@@ -497,7 +497,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 23 (v2.9.7). Now with **Offline Progression** and **Auto-Sell**.</p>
+    <p>Total Auras: 23 (v2.9.9). Now with **Seasonal LTAs**.</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -645,11 +645,10 @@
         const BASE_REBIRTH_COST = 1000000;
         const POWER_BONUS = 2;
         
-        // --- NEW AUTO-SELL STATE ---
         let isAutoSelling = false;
 
-        // Storage keys updated for v2.9.7
-        const VERSION_KEY = 'v2_9_7';
+        // Storage keys updated for v2.9.9
+        const VERSION_KEY = 'v2_9_9';
         const MONEY_STORAGE_KEY = `aura_money_${VERSION_KEY}`;
         const SHARDS_STORAGE_KEY = `aura_shards_${VERSION_KEY}`;
         const SHARD_MULT_STORAGE_KEY = `aura_shard_mult_${VERSION_KEY}`;
@@ -661,9 +660,10 @@
         const COLLECTION_STORAGE_KEY = `aura_collection_${VERSION_KEY}`;
         const INVENTORY_STORAGE_KEY = `aura_inventory_${VERSION_KEY}`;
         const LAST_SAVE_TIME_KEY = `aura_last_save_time_${VERSION_KEY}`;
-        
-        // --- NEW AUTO-SELL STORAGE KEY ---
         const AUTO_SELL_KEY = `aura_auto_sell_${VERSION_KEY}`;
+        const LUCK_MULT_KEY = `aura_luck_mult_${VERSION_KEY}`;
+        const ROLLS_LEFT_KEY = `aura_rolls_left_${VERSION_KEY}`;
+        const COOLDOWNS_KEY = `aura_cooldowns_${VERSION_KEY}`;
 
 
         // --- CORE AURA LIST ---
@@ -699,10 +699,14 @@
         ];
 
         // --- LIMITED TIME AURA (LTA) LIST ---
+        // Seasons: Spring (Mar-May), Summer (Jun-Aug), Fall (Sep-Nov), Winter (Dec-Feb)
         const limitedAuras = [
-            { name: "Seasonal Spook", rarity: "MYTHICAL (LTD)", chance: 1500, class: "mythical", value: 30000, shardValue: 15, id: 1 }, 
-            { name: "Holiday Hype", rarity: "DIVINE (LTD)", chance: 3000, class: "divine", value: 50000, shardValue: 25, id: 2 }, 
-            { name: "Summer Chill", rarity: "COSMIC (LTD)", chance: 7500, class: "cosmic", value: 100000, shardValue: 40, id: 3 } 
+            // Fall: Months 8, 9, 10 (Sept, Oct, Nov)
+            { name: "Seasonal Spook", rarity: "MYTHICAL (LTD)", chance: 1500, class: "mythical", value: 30000, shardValue: 15, id: 1, season: 'Fall' }, 
+            // Winter: Months 11, 0, 1 (Dec, Jan, Feb)
+            { name: "Holiday Hype", rarity: "DIVINE (LTD)", chance: 3000, class: "divine", value: 50000, shardValue: 25, id: 2, season: 'Winter' }, 
+            // Summer: Months 5, 6, 7 (Jun, Jul, Aug)
+            { name: "Summer Chill", rarity: "COSMIC (LTD)", chance: 7500, class: "cosmic", value: 100000, shardValue: 40, id: 3, season: 'Summer' }
         ];
 
         let activeLimitedAura = null;
@@ -718,7 +722,7 @@
         let autoRollInterval = null;
         let luckMultiplier = 1;
         let rollsLeft = 0;
-        let cooldowns = {};
+        let cooldowns = {}; // Tracks time remaining for boost cooldowns
         let activeTabName = 'luck-shop'; 
         
         // Collection Tracking
@@ -732,7 +736,7 @@
             { id: 'boost-100x', mult: 100, cost: 50000, duration: 6000, rolls: 1, name: '100X LUCK' }
         ];
 
-        // Store active cooldown timers
+        // Store active cooldown interval timers
         let cooldownTimers = {};
 
 
@@ -822,8 +826,60 @@
         function saveInventory() {
             localStorage.setItem(INVENTORY_STORAGE_KEY, JSON.stringify(inventory));
         }
+
+        // --- NEW BOOST STATE SAVING/LOADING ---
+        function saveBoostState() {
+            localStorage.setItem(LUCK_MULT_KEY, luckMultiplier.toString());
+            localStorage.setItem(ROLLS_LEFT_KEY, rollsLeft.toString());
+            
+            // Save the time remaining for all cooldowns
+            const savedCooldowns = {};
+            boostButtons.forEach(b => {
+                // Only save if a cooldown is active
+                if (cooldowns[b.id] > 0) {
+                    savedCooldowns[b.id] = cooldowns[b.id];
+                }
+            });
+            localStorage.setItem(COOLDOWNS_KEY, JSON.stringify(savedCooldowns));
+        }
         
-        // --- NEW: Record Time on Exit ---
+        function loadBoostState() {
+            luckMultiplier = parseFloat(localStorage.getItem(LUCK_MULT_KEY) || 1);
+            rollsLeft = parseInt(localStorage.getItem(ROLLS_LEFT_KEY) || 0);
+
+            // Load cooldowns
+            const storedCooldownsJson = localStorage.getItem(COOLDOWNS_KEY);
+            if (storedCooldownsJson) {
+                try {
+                    const storedCooldowns = JSON.parse(storedCooldownsJson);
+                    
+                    // Initialize or reset cooldowns array first
+                    boostButtons.forEach(b => {
+                        cooldowns[b.id] = storedCooldowns[b.id] || 0;
+                    });
+                    
+                    // Re-start the timers for active cooldowns
+                    boostButtons.forEach(b => {
+                        if (cooldowns[b.id] > 0) {
+                            startCooldown(b.id, cooldowns[b.id]);
+                        }
+                    });
+                } catch (e) {
+                    // Reset cooldowns if parsing failed
+                     boostButtons.forEach(b => cooldowns[b.id] = 0);
+                }
+            } else {
+                 boostButtons.forEach(b => cooldowns[b.id] = 0);
+            }
+            
+            // If the multiplier is > 1 but rolls are 0 (e.g., bugged save), reset it
+            if (luckMultiplier > 1 && rollsLeft <= 0) {
+                luckMultiplier = 1;
+            }
+        }
+
+
+        // --- Record Time on Exit ---
         window.addEventListener('beforeunload', () => {
             // Only record the time if the game has started
             if (money > 0) {
@@ -834,6 +890,7 @@
                 saveSpeed();
                 saveCollection();
                 saveInventory();
+                saveBoostState(); 
             }
         });
 
@@ -845,14 +902,11 @@
             loadPower(); 
             loadCollection();
             loadInventory(); 
+            loadBoostState(); 
 
             // Check for offline progress immediately
             checkOfflineProgress();
 
-            boostButtons.forEach(b => {
-                cooldowns[b.id] = 0;
-            });
-            
             determineActiveLimitedAura();
             updateLuckDisplay();
             renderChecklist();
@@ -866,7 +920,7 @@
             openTab('luck-shop', getButton('luck-tab'));
         });
         
-        // --- NEW OFFLINE PROGRESS FUNCTION ---
+        // --- OFFLINE PROGRESS FUNCTION ---
         function checkOfflineProgress() {
             const lastTime = localStorage.getItem(LAST_SAVE_TIME_KEY);
             if (!lastTime) return; // No previous save time found
@@ -897,9 +951,14 @@
             let totalCoinsGained = 0;
             let totalShardsGained = 0;
             
-            // We do NOT add offline auras to inventory, they are automatically sold for value
-            
+            // Determine the aura list for offline roll
+            // IMPORTANT: We need to determine the active LTA based on the LAST SAVE TIME
+            // This is complex, so for simplicity in offline mode, we assume LTAs are NOT active
+            // OR we use the current determined LTA (which is simpler but less accurate)
+            // Let's use the current determined LTA, as we cannot easily determine what day/month it was at the time of exit.
+            determineActiveLimitedAura(); // Set LTA based on current time
             const currentAuraList = getAurasForRolling();
+            
             // Sort by chance to properly simulate the roll logic
             const sortedAuras = [...currentAuraList].sort((a, b) => b.chance - a.chance);
 
@@ -936,8 +995,6 @@
             money += totalCoinsGained;
             shards += totalShardsGained;
             
-            // Since offline auras are auto-sold, we don't need inventory updates here.
-
             // Final save after granting all offline progress
             saveStats(); 
             
@@ -963,7 +1020,7 @@
         // --- END OFFLINE PROGRESS FUNCTION ---
 
 
-        // --- NEW AUTO-SELL LOGIC ---
+        // --- AUTO-SELL LOGIC ---
         function toggleAutoSell() {
             isAutoSelling = !isAutoSelling;
             saveStats();
@@ -991,10 +1048,6 @@
         // --- END AUTO-SELL LOGIC ---
 
 
-        // --- REST OF CODE ---
-
-        // ... (getAuraDetails, updateMoneyDisplay, loadStats, saveStats, etc. remain unchanged unless modified for auto-sell)
-        
         // --- LOOT SHOP LOGIC (COIN SINK) ---
         function renderLootShop() {
             // Coin Sink (Mystery Box)
@@ -1104,9 +1157,16 @@
             updateMoneyDisplay();
 
             // 1. Filter for Rare or better Auras
-            const highRarityAuras = auras.filter(a => a.shardValue > 0);
+            // Include active LTA if present
+            const currentAuraList = getAurasForRolling();
+            const highRarityAuras = currentAuraList.filter(a => a.shardValue > 0 || (a.id && activeLimitedAura)); // Use 'id' to identify LTAs
+
+            if (highRarityAuras.length === 0) {
+                 // Fallback if no high rarity auras are defined
+                 return;
+            }
             
-            // 2. Roll for the high rarity Aura (Use simple random for now)
+            // 2. Roll for the high rarity Aura
             const result = highRarityAuras[Math.floor(Math.random() * highRarityAuras.length)];
             
             // 3. Roll for bonus
@@ -1182,35 +1242,63 @@
         // --- END SELLING LOGIC UPDATE ---
 
 
-        // --- LTA ROTATION LOGIC ---
+        // --- LTA ROTATION LOGIC (UPDATED FOR SEASONS) ---
         function determineActiveLimitedAura() {
             const now = new Date();
-            const localDay = now.getDay(); 
-            const dayOfWeek = localDay === 0 ? 7 : localDay; 
+            const month = now.getMonth(); 
+            
+            let currentSeason = '';
+            let nextSeasonMonth = 0; // Next month when rotation occurs
 
-            if (dayOfWeek === 1 || dayOfWeek === 2) { 
-                activeLimitedAura = limitedAuras[0]; 
-            } else if (dayOfWeek === 3 || dayOfWeek === 4) { 
-                activeLimitedAura = limitedAuras[1]; 
-            } else { 
-                activeLimitedAura = limitedAuras[2]; 
+            if (month >= 2 && month <= 4) { // Mar (2), Apr (3), May (4)
+                currentSeason = 'Spring';
+                nextSeasonMonth = 5; // June
+                activeLimitedAura = null;
+            } else if (month >= 5 && month <= 7) { // Jun (5), Jul (6), Aug (7)
+                currentSeason = 'Summer';
+                nextSeasonMonth = 8; // September
+                activeLimitedAura = limitedAuras.find(a => a.season === 'Summer');
+            } else if (month >= 8 && month <= 10) { // Sep (8), Oct (9), Nov (10)
+                currentSeason = 'Fall';
+                nextSeasonMonth = 11; // December
+                activeLimitedAura = limitedAuras.find(a => a.season === 'Fall');
+            } else { // Dec (11), Jan (0), Feb (1)
+                currentSeason = 'Winter';
+                nextSeasonMonth = 2; // March
+                activeLimitedAura = limitedAuras.find(a => a.season === 'Winter');
             }
             
-            const midnight = new Date(now);
-            midnight.setDate(now.getDate() + 1); 
-            midnight.setHours(0, 0, 0, 0); 
+            // Calculate time until next season
+            const nextRotationDate = new Date(now.getFullYear(), nextSeasonMonth, 1);
+            if (nextSeasonMonth <= month) {
+                 // If the next rotation month is numerically smaller (e.g., Dec to Mar), increment the year
+                 nextRotationDate.setFullYear(now.getFullYear() + 1);
+            }
             
-            const timeUntilRotation = midnight.getTime() - now.getTime();
+            const timeUntilRotation = nextRotationDate.getTime() - now.getTime();
             
-            const rotationHours = Math.floor(timeUntilRotation / (1000 * 60 * 60));
+            const rotationDays = Math.floor(timeUntilRotation / (1000 * 60 * 60 * 24));
+            const rotationHours = Math.floor((timeUntilRotation % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const rotationMinutes = Math.floor((timeUntilRotation % (1000 * 60 * 60)) / (1000 * 60));
 
             const limitedDisplay = getButton('limited-aura-display');
-            limitedDisplay.innerHTML = `**ACTIVE LTA:** <span class="${activeLimitedAura.class}">${activeLimitedAura.name}</span> (${activeLimitedAura.rarity}) <br> *Time Remaining: ${rotationHours}h ${rotationMinutes}m*`;
+            
+            if (activeLimitedAura) {
+                 limitedDisplay.innerHTML = `**ACTIVE LTA (${currentSeason}):** <span class="${activeLimitedAura.class}">${activeLimitedAura.name}</span> (${activeLimitedAura.rarity}) <br> *Time Remaining: ${rotationDays}d ${rotationHours}h ${rotationMinutes}m*`;
+            } else {
+                 limitedDisplay.innerHTML = `**NO ACTIVE LTA (${currentSeason}).** <br> *Next LTA activates on the first day of ${getMonthName(nextSeasonMonth)}!*`;
+            }
+        }
+        
+        function getMonthName(monthIndex) {
+            const date = new Date(2000, monthIndex, 1);
+            return date.toLocaleString('default', { month: 'long' });
         }
 
+
         function getAurasForRolling() {
-            return [...auras, activeLimitedAura];
+            // Only include the activeLimitedAura if it is actually set
+            return activeLimitedAura ? [...auras, activeLimitedAura] : auras;
         }
         // --- END LTA ROTATION LOGIC ---
         
@@ -1380,10 +1468,17 @@
                 speedLevel = 0;
                 inventory = [];
                 isAutoSelling = false; // Reset auto sell on rebirth
+                luckMultiplier = 1; // Reset luck state
+                rollsLeft = 0;
+                // Stop all timers
+                Object.values(cooldownTimers).forEach(clearInterval);
+                cooldownTimers = {};
+                boostButtons.forEach(b => cooldowns[b.id] = 0);
                 
                 saveStats(); 
                 saveSpeed();
                 saveInventory();
+                saveBoostState(); 
                 
                 updateMoneyDisplay();
                 updatePowerDisplay();
@@ -1392,7 +1487,7 @@
         }
 
         function resetGame() {
-            if (confirm("🚨 WARNING: Are you absolutely sure you want to clear ALL game data (Money, Shards, Power, Collection)? This action is irreversible!")) {
+            if (confirm("🚨 WARNING: Are you absolutely sure you want to clear ALL game data (Money, Shards, Power, Collection, Boosts)? This action is irreversible!")) {
                 localStorage.clear();
                 window.location.reload();
             }
@@ -1460,9 +1555,9 @@
             const btn = getButton(id);
             if (!btn) return;
 
-            const boost = boostButtons.find(b => b.id === id);
+            const boost = boostButtons.find(b => b.mult === multiplier);
 
-            if (currentMultiplier === boost.mult) {
+            if (currentMultiplier === boost.mult && rollsLeft > 0) {
                 btn.disabled = true;
                 btn.innerHTML = `BOOST ACTIVE<br>(${rollsLeft} Rolls)`;
                 btn.classList.add('active-boost');
@@ -1507,6 +1602,7 @@
         }
 
         function startCooldown(boostId, cooldownTime) {
+            // Clear any existing timer for this boost
             if (cooldownTimers[boostId]) {
                 clearInterval(cooldownTimers[boostId]);
             }
@@ -1515,14 +1611,18 @@
 
             const timer = setInterval(() => {
                 cooldowns[boostId]--;
-                if (luckMultiplier !== boostButtons.find(b => b.id === boostId).mult) {
-                    updateBoostButtonDisplay(boostId, boostButtons.find(b => b.id === boostId).name, boostButtons.find(b => b.id === boostId).cost, cooldowns[boostId], luckMultiplier);
+                saveBoostState(); 
+                
+                const boostDetails = boostButtons.find(b => b.id === boostId);
+                if (luckMultiplier !== boostDetails.mult) {
+                    updateBoostButtonDisplay(boostId, boostDetails.name, boostDetails.cost, cooldowns[boostId], luckMultiplier);
                 }
 
                 if (cooldowns[boostId] <= 0) {
                     clearInterval(timer);
                     delete cooldownTimers[boostId];
                     cooldowns[boostId] = 0;
+                    saveBoostState(); 
                     updateLuckDisplay(); 
                 }
             }, 1000);
@@ -1544,6 +1644,7 @@
             rollsLeft = boost.rolls;
 
             startCooldown(boost.id, boost.duration);
+            saveBoostState(); 
         }
 
         async function rollAura(isAuto) {
@@ -1610,8 +1711,19 @@
                 if (rollsLeft <= 0) {
                     luckMultiplier = 1;
                     rollsLeft = 0;
+                    // Force a save and display update immediately when boost ends
+                    saveBoostState(); 
+                    updateLuckDisplay();
+                } else {
+                    saveBoostState(); 
+                    updateLuckDisplay();
                 }
-                updateLuckDisplay();
+            }
+            
+            // Periodically save general stats during auto-roll
+             if (autoRollInterval && Math.random() < 0.05) { 
+                 saveStats();
+                 saveInventory();
             }
         }
 
@@ -1660,10 +1772,6 @@
             saveAuraToCollection(result.name);
             updateMoneyDisplay(); 
             
-             if (autoRollInterval && Math.random() < 0.05) { 
-                 saveStats();
-                 saveInventory();
-            }
         }
 
         function displayResult(item, coinGain, wasAutoSold) {
@@ -1701,6 +1809,7 @@
             }
 
             renderInventory(); 
+            saveInventory(); 
         }
 
         function toggleAutoRoll() {
