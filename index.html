@@ -65,6 +65,12 @@
             transition: all 0.2s;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
+        
+        /* NEW: Visual feedback for auto-roll */
+        .auto-flash {
+            box-shadow: 0 0 40px #ffcc00, 0 0 10px #ffcc00;
+            transform: scale(1.02);
+        }
 
         #aura-name {
             font-size: 2.5rem;
@@ -497,7 +503,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 23 (v2.9.9.1). **Button Fixed**.</p>
+    <p>Total Auras: 23 (v2.9.9.2). **Shard Store Added**.</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -567,6 +573,19 @@
 
             <hr style="border-color: #555; margin: 20px 0;">
             
+            <h3>💎 The Shard Store (Permanent Multipliers)</h3>
+            
+            <div id="shard-store-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                
+                <div style="border: 1px solid #ffcc00; padding: 10px; border-radius: 8px;">
+                    <button id="permanent-luck-btn" class="shard-btn" onclick="buyShardUpgrade('permanent-luck')">
+                        Permanent Base Luck (+0.1x)<br>(Cost: 💎50 Shards)
+                    </button>
+                    <p id="permanent-luck-status" style="margin-top: 5px; color: lime; font-size: 0.9rem;">Current Bonus: +0.0x</p>
+                </div>
+            </div>
+            
+            <hr style="border-color: #555; margin: 20px 0;">
             <h3>💎 Permanent Shard Upgrades (Survive Rebirth)</h3>
             
             <div id="shard-upgrades-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
@@ -630,6 +649,9 @@
 
     <script>
         // Define currency and storage key globally
+        // NOTE: VERSION_KEY has been updated to v2_9_9_2
+        const VERSION_KEY = 'v2_9_9_2';
+        
         let money = 0;
         let shards = 0;
         let shardMultiplier = 1;
@@ -638,6 +660,10 @@
         let rebirthStartT2Purchased = false;
         let rareBonusLuck = 0; 
         
+        // NEW SHARD STORE VARIABLES
+        let permanentBaseLuck = 0; // Tracks the total bonus (e.g., 0.1, 0.2, etc.)
+        const BASE_PERM_LUCK_COST = 50; 
+
         let autoRollSpeed = 1000;
         let speedLevel = 0;
         let power = 0;
@@ -647,14 +673,14 @@
         
         let isAutoSelling = false;
 
-        // Storage keys updated for v2.9.9.1
-        const VERSION_KEY = 'v2_9_9_1';
+        // Storage keys updated for v2.9.9.2
         const MONEY_STORAGE_KEY = `aura_money_${VERSION_KEY}`;
         const SHARDS_STORAGE_KEY = `aura_shards_${VERSION_KEY}`;
         const SHARD_MULT_STORAGE_KEY = `aura_shard_mult_${VERSION_KEY}`;
         const REBIRTH_START_T1_KEY = `aura_start_t1_purchased_${VERSION_KEY}`;
         const REBIRTH_START_T2_KEY = `aura_start_t2_purchased_${VERSION_KEY}`;
         const RARE_BONUS_KEY = `aura_rare_bonus_luck_${VERSION_KEY}`;
+        const PERMANENT_LUCK_KEY = `aura_permanent_luck_${VERSION_KEY}`; // NEW
         const SPEED_STORAGE_KEY = `aura_speed_${VERSION_KEY}`;
         const POWER_STORAGE_KEY = `aura_power_${VERSION_KEY}`;
         const COLLECTION_STORAGE_KEY = `aura_collection_${VERSION_KEY}`;
@@ -772,6 +798,9 @@
             rebirthStartT2Purchased = localStorage.getItem(REBIRTH_START_T2_KEY) === 'true';
             rareBonusLuck = parseFloat(localStorage.getItem(RARE_BONUS_KEY) || 0);
             
+            // SHARD STORE LOADING (NEW)
+            permanentBaseLuck = parseFloat(localStorage.getItem(PERMANENT_LUCK_KEY) || 0);
+
             // AUTO-SELL LOADING
             isAutoSelling = localStorage.getItem(AUTO_SELL_KEY) === 'true';
 
@@ -791,6 +820,9 @@
             localStorage.setItem(REBIRTH_START_T2_KEY, rebirthStartT2Purchased.toString());
             localStorage.setItem(RARE_BONUS_KEY, rareBonusLuck.toString());
             
+            // SHARD STORE SAVING (NEW)
+            localStorage.setItem(PERMANENT_LUCK_KEY, permanentBaseLuck.toFixed(1));
+
             // AUTO-SELL SAVING
             localStorage.setItem(AUTO_SELL_KEY, isAutoSelling.toString());
         }
@@ -969,7 +1001,10 @@
                 const OFFLINE_LUCK_MULT = 1; 
                 
                 for (let aura of sortedAuras) {
-                    let threshold = (1000 / aura.chance) * OFFLINE_LUCK_MULT;
+                    // NEW: Include permanent luck in offline calculation
+                    const totalBaseLuck = 1 + permanentBaseLuck;
+                    const effectiveLuck = totalBaseLuck * OFFLINE_LUCK_MULT; 
+                    let threshold = (1000 / aura.chance) * effectiveLuck;
                     
                      // Apply permanent rare bonus
                     if (aura.rarity === 'Uncommon' || aura.rarity === 'Rare') {
@@ -1068,6 +1103,18 @@
 
         // --- POWER SHOP LOGIC (SHARD UPGRADES) ---
         function renderPowerShop() {
+            
+            // 0. SHARD STORE: Permanent Base Luck (NEW)
+            const permLuckBtn = getButton('permanent-luck-btn');
+            // Cost increases with each purchase: 50, 60, 70, 80...
+            const permLuckCost = BASE_PERM_LUCK_COST + (permanentBaseLuck / 0.1) * 10; 
+            
+            permLuckBtn.innerHTML = `Permanent Base Luck (+0.1x)<br>(Cost: 💎${permLuckCost.toLocaleString()} Shards)`;
+            getButton('permanent-luck-status').textContent = `Current Bonus: +${permanentBaseLuck.toFixed(1)}x (Total Base Luck: ${(1 + permanentBaseLuck).toFixed(1)}x)`;
+            
+            permLuckBtn.disabled = shards < permLuckCost;
+            permLuckBtn.classList.toggle('disabled-boost', shards < permLuckCost);
+            
             // 1. Shard Multiplier
             const shardMultBtn = getButton('shard-mult-btn');
             const shardCost = 10 * shardMultiplier;
@@ -1134,6 +1181,10 @@
                     cost = 50;
                     if (rareBonusLuck >= 0.6) return; // Max 3 purchases
                     effectFn = () => { rareBonusLuck = Math.min(0.6, rareBonusLuck + 0.2); };
+                    break;
+                case 'permanent-luck': // NEW SHARD STORE UPGRADE
+                    cost = BASE_PERM_LUCK_COST + (permanentBaseLuck / 0.1) * 10;
+                    effectFn = () => { permanentBaseLuck = permanentBaseLuck + 0.1; };
                     break;
                 default:
                     return;
@@ -1463,8 +1514,8 @@
                 
                 // Reset resources, but use the permanent start money upgrade
                 money = rebirthStartMoney; 
-                shards = 0;
-                shardMultiplier = 1; 
+                // Shard and Permanent Luck upgrades persist
+                // shards, shardMultiplier, permanentBaseLuck are NOT reset here.
                 autoRollSpeed = 1000;
                 speedLevel = 0;
                 inventory = [];
@@ -1586,12 +1637,14 @@
 
         function updateLuckDisplay() {
             const luckDisplayEl = getButton('luck-display');
+            const totalBaseLuck = 1 + permanentBaseLuck;
+            const effectiveMultiplier = totalBaseLuck * luckMultiplier;
 
-            if (luckMultiplier > 1) {
-                luckDisplayEl.textContent = `${luckMultiplier}x (${rollsLeft} rolls left)`;
+            if (effectiveMultiplier > 1) {
+                luckDisplayEl.textContent = `${effectiveMultiplier.toFixed(1)}x (${rollsLeft > 0 ? rollsLeft + ' rolls left' : 'Permanent'})`;
                 luckDisplayEl.className = 'luck-boost';
-                if (luckMultiplier === 10) luckDisplayEl.classList.add('x10-boost');
-                else if (luckMultiplier === 100) luckDisplayEl.classList.add('x100-boost');
+                if (effectiveMultiplier >= 10) luckDisplayEl.classList.add('x10-boost');
+                else if (effectiveMultiplier >= 100) luckDisplayEl.classList.add('x100-boost');
             } else {
                 luckDisplayEl.textContent = '1x';
                 luckDisplayEl.className = 'luck-boost';
@@ -1651,11 +1704,11 @@
 
         async function rollAura(isAuto) {
             // FIX: If the button is already disabled because a roll is processing, exit.
-            // This prevents duplicate execution when the user rapid-clicks.
             if (isRolling) return;
             isRolling = true;
 
             const btn = getButton('roll-btn');
+            const displayArea = getButton('display-area'); // Get the display area for auto-flash
 
             if (!isAuto) { 
                 btn.disabled = true;
@@ -1698,6 +1751,17 @@
             }
 
             finalizeRoll();
+            
+            // NEW: Add the flash effect for visual feedback on auto-roll
+            if (isAuto) {
+                displayArea.classList.add('auto-flash');
+                
+                // Remove the flash after a very short time
+                setTimeout(() => {
+                    displayArea.classList.remove('auto-flash');
+                }, 50); // Flash for 50 milliseconds
+            }
+
 
             isRolling = false;
             
@@ -1739,7 +1803,11 @@
             const sortedAuras = [...currentAuraList].sort((a, b) => b.chance - a.chance);
 
             for (let aura of sortedAuras) {
-                let threshold = (1000 / aura.chance) * luckMultiplier;
+                // NEW: Use permanentBaseLuck in the calculation
+                const totalBaseLuck = 1 + permanentBaseLuck;
+                const effectiveLuck = totalBaseLuck * luckMultiplier; 
+
+                let threshold = (1000 / aura.chance) * effectiveLuck;
                 
                 if (aura.rarity === 'Uncommon' || aura.rarity === 'Rare') {
                     threshold += threshold * rareBonusLuck; 
