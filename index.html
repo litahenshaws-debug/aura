@@ -123,7 +123,7 @@
         /* --- TAB UI STYLES --- */
         #tabs-container {
             max-width: 800px;
-            margin: 30px auto 10px;
+            margin: 30px auto 0px; /* Reduced bottom margin */
             border-bottom: 2px solid #555;
             display: flex;
             justify-content: center;
@@ -160,12 +160,22 @@
             padding: 20px 10px;
             max-width: 800px;
             margin: 0 auto;
+            /* Default hidden */
             display: none;
+            /* Added margin-bottom to make space when content is visible */
+            margin-bottom: 20px; 
         }
 
+        /* This is the key change for the toggle functionality */
         .tab-content.active {
             display: block;
         }
+        
+        /* When the content is NOT active, we need a small gap to separate the tab row from elements below it */
+        #tab-content-container:empty {
+            margin-bottom: 20px;
+        }
+
 
         /* Luck Shop Content Styles */
         .boost-btn {
@@ -482,7 +492,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 23 (v2.9.2). Collection tab added.</p>
+    <p>Total Auras: 23 (v2.9.3). Tab toggle feature added.</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -619,8 +629,8 @@
         const BASE_REBIRTH_COST = 1000000;
         const POWER_BONUS = 2;
 
-        // Storage keys updated for v2.9.2
-        const VERSION_KEY = 'v2_9_2';
+        // Storage keys updated for v2.9.3
+        const VERSION_KEY = 'v2_9_3';
         const MONEY_STORAGE_KEY = `aura_money_${VERSION_KEY}`;
         const SHARDS_STORAGE_KEY = `aura_shards_${VERSION_KEY}`;
         const SHARD_MULT_STORAGE_KEY = `aura_shard_mult_${VERSION_KEY}`;
@@ -685,7 +695,8 @@
         let luckMultiplier = 1;
         let rollsLeft = 0;
         let cooldowns = {};
-
+        let activeTabName = 'luck-shop'; // Track the currently active tab content ID
+        
         // Collection Tracking
         let collectedAuras = new Set();
         let inventory = []; 
@@ -803,6 +814,7 @@
             updateRebirthDisplay(); 
             updateMoneyDisplay();
             
+            // Initial tab display: show the first tab by default
             openTab('luck-shop', getButton('luck-tab'));
         });
 
@@ -822,7 +834,8 @@
                 mysteryBtn.innerHTML = `MYSTERY BOX<br>(Cost: 💰${cost.toLocaleString()})`;
             }
         }
-        
+
+
         // --- POWER SHOP LOGIC (SHARD UPGRADES) ---
         function renderPowerShop() {
             // 1. Shard Multiplier
@@ -1013,18 +1026,31 @@
         // --- GENERAL GAME FUNCTIONS (Tab control, Rebirth, Speed Shop, Rolling) ---
 
         function openTab(tabName, elmnt) {
-            const tabcontent = document.getElementsByClassName("tab-content");
-            for (let i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].classList.remove('active');
-            }
+            const tabcontent = document.getElementById(tabName);
+            
+            // Check if the clicked tab is already active
+            if (elmnt.classList.contains('active')) {
+                // If active, deactivate and hide it
+                elmnt.classList.remove('active');
+                tabcontent.classList.remove('active');
+                activeTabName = null;
+            } else {
+                // Deactivate all content and buttons first
+                const allTabContents = document.getElementsByClassName("tab-content");
+                for (let i = 0; i < allTabContents.length; i++) {
+                    allTabContents[i].classList.remove('active');
+                }
 
-            const tablinks = document.getElementsByClassName("tab-button");
-            for (let i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove('active');
-            }
+                const allTablinks = document.getElementsByClassName("tab-button");
+                for (let i = 0; i < allTablinks.length; i++) {
+                    allTablinks[i].classList.remove('active');
+                }
 
-            document.getElementById(tabName).classList.add('active');
-            elmnt.classList.add('active');
+                // Activate the selected tab
+                tabcontent.classList.add('active');
+                elmnt.classList.add('active');
+                activeTabName = tabName;
+            }
         }
 
         function calculatePowerMultiplier() {
