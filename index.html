@@ -127,6 +127,7 @@
             border-bottom: 2px solid #555;
             display: flex;
             justify-content: center;
+            flex-wrap: wrap; /* Added for responsiveness */
         }
 
         .tab-button {
@@ -140,6 +141,7 @@
             font-weight: bold;
             border-radius: 8px 8px 0 0;
             transition: background 0.1s;
+            margin-bottom: -2px; /* Pulls button slightly down over the border */
         }
 
         .tab-button:hover {
@@ -171,11 +173,13 @@
             display: block;
         }
         
-        /* When the content is NOT active, we need a small gap to separate the tab row from elements below it */
-        #tab-content-container:empty {
-            margin-bottom: 20px;
+        /* Shop & Checklist/Inventory Styles */
+        #speed-shop h2, #luck-shop h2, #power-shop h2, #loot-shop h2, #checklist-tab h2, #inventory-tab h2 {
+            margin-top: 0;
+            color: #ffcc00;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
         }
-
 
         /* Luck Shop Content Styles */
         .boost-btn {
@@ -252,14 +256,6 @@
             color: white !important;
         }
         
-        /* Shop & Rebirth Styles */
-        #speed-shop h2, #luck-shop h2, #power-shop h2, #loot-shop h2, #collection-tab h2 {
-            margin-top: 0;
-            color: #ffcc00;
-            border-bottom: 1px solid #555;
-            padding-bottom: 10px;
-        }
-
         .upgrade-btn {
             background: linear-gradient(45deg, #0088ff, #0044aa);
             box-shadow: 0 6px 0 #002255;
@@ -391,9 +387,8 @@
             color: #5c1f99;
         }
 
-        /* Checklist Styles (Moved to Collection Tab) */
+        /* Checklist Styles (In Checklist Tab) */
         .checklist {
-            margin-top: 20px;
             padding-top: 10px;
         }
 
@@ -422,10 +417,9 @@
             text-decoration: none !important;
         }
 
+        /* Inventory Styles (In Inventory Tab) */
         .inventory {
-            margin-top: 40px;
-            border-top: 2px dashed #555;
-            padding-top: 20px;
+            padding-top: 10px;
         }
 
         .item-list {
@@ -492,7 +486,7 @@
     </audio>
 
     <h1>⭐ Roll an Aura ⭐</h1>
-    <p>Total Auras: 23 (v2.9.4). Collection tab added.</p>
+    <p>Total Auras: 23 (v2.9.4). Separate Checklist and Inventory tabs added.</p>
 
     <div id="status-area">
         <div>Current Luck: <span id="luck-display" class="luck-boost">1x</span></div>
@@ -520,7 +514,8 @@
         <button class="tab-button" onclick="openTab('loot-shop', this)" id="loot-tab">🎁 Coin Sink</button>
         <button class="tab-button" onclick="openTab('speed-shop', this)" id="speed-tab">⚡ Speed Shop</button>
         <button class="tab-button" onclick="openTab('power-shop', this)" id="power-tab">🔥 Power & Rebirth</button>
-        <button class="tab-button" onclick="openTab('collection-tab', this)" id="collection-tab-btn">📚 Collection</button>
+        <button class="tab-button" onclick="openTab('checklist-tab', this)" id="checklist-tab-btn">📚 Checklist</button>
+        <button class="tab-button" onclick="openTab('inventory-tab', this)" id="inventory-tab-btn">🎒 Inventory</button>
     </div>
 
     <div id="tab-content-container">
@@ -594,14 +589,16 @@
             </div>
         </div>
         
-        <div id="collection-tab" class="tab-content">
+        <div id="checklist-tab" class="tab-content">
             <div class="checklist">
                 <h2>📋 AURA CHECKLIST</h2>
                 <div id="uncollected-list">
                     </div>
             </div>
-
-            <div class="inventory">
+        </div>
+        
+        <div id="inventory-tab" class="tab-content">
+             <div class="inventory">
                 <h2>🎒 STOLEN COLLECTION (Latest First)</h2>
                 <button id="sell-all-btn" onclick="sellAllItems()">SELL ALL ITEMS</button>
                 <div class="item-list" id="inventory-list">
